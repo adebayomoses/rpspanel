@@ -29,10 +29,11 @@ rps_rule_cols <- c(
 #' coded*, and their stringency measures are `NA` rather than zero.
 #'
 #' @section Status of the bundled coding:
-#' The bundled coding is a starter set. Every row has `verified = FALSE`
-#' until it has been hand-checked against the statute or DSIRE program page,
-#' as set out in the package's validation plan. Please report corrections on
-#' the issue tracker.
+#' The bundled coding covers all 50 states and DC. Rows with
+#' `verified = TRUE` have been hand-checked against the statute, the DSIRE
+#' program page and the LBNL RPS & CES data, as set out in the package's
+#' validation plan; `source` and `notes` give the citations and coding
+#' choices. Please report corrections on the issue tracker.
 #'
 #' @param states Optional states to keep.
 #' @param rules_path,targets_path Paths to CSV files with your own coding.

@@ -66,7 +66,7 @@ fake_bea_body <- function(url) {
     line <- sub(".*LineCode=([0-9]+).*", "\\1", url)
     table <- sub(".*TableName=([A-Z0-9]+).*", "\\1", url)
     val <- switch(paste0(table, ":", line),
-      "SAGDP9N:1" = c("2,800,000", "2,700,000", "1,800,000", "1,750,000", "(NA)"),
+      "SAGDP9:1" = c("2,800,000", "2,700,000", "1,800,000", "1,750,000", "(NA)"),
       "SAINC1:2" = c("39,500,000", "39,400,000", "29,000,000", "29,200,000", "330000000"),
       rep("1", 5))
     data <- data.frame(Code = paste0(table, "-", line),

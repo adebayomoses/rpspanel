@@ -8,7 +8,9 @@ build_request <- function(url, query = list()) {
   req <- do.call(httr2::req_url_query, c(list(req), query, list(.multi = "explode")))
   req <- httr2::req_user_agent(req, rpspanel_user_agent())
   req <- httr2::req_timeout(req, 120)
-  httr2::req_retry(req, max_tries = 3)
+  # EIA's gateway returns sporadic 500s that succeed on retry
+  httr2::req_retry(req, max_tries = 4,
+                   is_transient = function(resp) httr2::resp_status(resp) %in% c(429, 500, 502, 503, 504))
 }
 
 # All network traffic goes through here so tests can mock a single function.

@@ -8,16 +8,16 @@ bea_base_url <- "https://apps.bea.gov/api/data"
 #'
 #' Useful Regional tables and line codes:
 #'
-#' * `SAGDP9N` line 1: real GDP, all industries (millions of chained 2017
+#' * `SAGDP9` line 1: real GDP, all industries (millions of chained 2017
 #'   dollars); line 12: manufacturing.
-#' * `SAGDP2N` line 1: nominal GDP (millions of current dollars).
-#' * `SAINC1` line 1: personal income (thousands of dollars); line 2:
+#' * `SAGDP2` line 1: nominal GDP (millions of current dollars).
+#' * `SAINC1` line 1: personal income (millions of dollars); line 2:
 #'   population (persons); line 3: per capita personal income (dollars).
 #'
 #' Useful NIPA table: `T10109` line 1, the implicit price deflator for GDP
 #' (index, 2017 = 100).
 #'
-#' @param table BEA table name, for example `"SAGDP9N"` or `"T10109"`.
+#' @param table BEA table name, for example `"SAGDP9"` or `"T10109"`.
 #' @param line_code Line code (Regional) or line number (NIPA).
 #' @param dataset `"Regional"` (state data) or `"NIPA"` (national data).
 #' @param states States to keep (Regional only); `NULL` keeps all 50 + DC.
@@ -32,7 +32,7 @@ bea_base_url <- "https://apps.bea.gov/api/data"
 #'   to the unit label, not the value).
 #' @export
 #' @examplesIf nzchar(Sys.getenv("BEA_API_KEY"))
-#' fetch_bea("SAGDP9N", 1, states = "CA", years = 2015:2020)
+#' fetch_bea("SAGDP9", 1, states = "CA", years = 2015:2020)
 #' fetch_bea("T10109", 1, dataset = "NIPA")
 fetch_bea <- function(table, line_code, dataset = c("Regional", "NIPA"),
                       states = NULL, years = NULL, api_key = NULL,
@@ -95,6 +95,8 @@ bea_tidy <- function(body, table, line_code, dataset) {
   scale_lab <- c("0" = "", "3" = "thousands of ", "6" = "millions of ", "9" = "billions of ")
   prefix <- unname(scale_lab[as.character(mult)])
   prefix[is.na(prefix)] <- ""
+  # Regional unit labels usually already name the scale ("Millions of dollars")
+  prefix[grepl("^(thousands|millions|billions) of", unit, ignore.case = TRUE)] <- ""
   out <- data.frame(
     state = state,
     year = as.integer(substr(as.character(d$TimePeriod), 1, 4)),

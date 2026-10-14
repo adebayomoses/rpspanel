@@ -5,7 +5,17 @@ output: github_document
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 ```{r, include = FALSE}
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+knitr::opts_chunk$set(
+  collapse = TRUE, comment = "#>",
+  fig.path = "man/figures/README-", fig.width = 8, fig.height = 4.5,
+  dpi = 120, out.width = "100%"
+)
+# Live chunks run only when API keys are available; the cache location can be
+# redirected with RPSPANEL_CACHE so knitting never touches the user cache.
+has_keys <- nzchar(Sys.getenv("EIA_API_KEY")) && nzchar(Sys.getenv("BEA_API_KEY"))
+if (nzchar(Sys.getenv("RPSPANEL_CACHE"))) {
+  options(rpspanel.cache_dir = Sys.getenv("RPSPANEL_CACHE"))
+}
 ```
 
 # rpspanel
@@ -47,27 +57,143 @@ EIA_API_KEY=your-eia-key
 BEA_API_KEY=your-bea-key
 ```
 
-## Example
+## Live example
 
-```{r, eval = FALSE}
+Everything below is real output, produced by knitting this README against
+the live EIA and BEA APIs (`r format(Sys.Date(), "%d %B %Y")`).
+
+### One call builds the whole panel
+
+```{r build, eval = has_keys, message = TRUE}
 library(rpspanel)
 
-panel <- build_panel(years = 2005:2022)
-codebook(panel)
-cite_sources(panel)
+t0 <- Sys.time()
+panel <- build_panel(years = 2001:2022)
+Sys.time() - t0
 
+dim(panel)
+names(panel)
+
+print(panel[panel$state == "CA" & panel$year >= 2018,
+            c("state", "year", "energy_cons_total", "gen_total", "re_share_nonhydro",
+              "co2_total", "gdp_real", "population", "rps_nominal")])
+```
+
+The first build downloads every series from the seven sources. After
+that the data come from the local cache, so the same vintage is used every
+time until you pass `refresh = TRUE`.
+
+### Where every number comes from
+
+```{r provenance, eval = has_keys}
+attr(panel, "sources")[c("source", "retrieved")]
+
+head(codebook(panel), 8)
+```
+
+```{r cite, eval = has_keys}
+cite_sources(panel)
+```
+
+### A first look at the data
+
+```{r snapshot, eval = has_keys}
+snap <- as.data.frame(panel)
+snap <- snap[snap$year == 2022 & snap$state %in% c("CA", "TX", "NY", "IA", "WY", "VT"),
+             c("state", "co2_pc", "re_share_nonhydro", "gdp_real_pc",
+               "elec_price_real", "rps_nominal")]
+print(snap, digits = 3, row.names = FALSE)
+```
+
+National totals match the published figures (2020: about 4,570 million
+tonnes of energy-related CO2, 4,010 TWh of net generation, 331.6 million
+people):
+
+```{r totals, eval = has_keys}
+y20 <- panel[panel$year == 2020, ]
+c(co2_mt = sum(y20$co2_total), generation_twh = sum(y20$gen_total) / 1000,
+  population_m = sum(y20$population) / 1e6, real_gdp_tn = sum(y20$gdp_real) / 1e6)
+```
+
+```{r renewables, eval = has_keys, fig.alt = "Non-hydro renewable share of generation, 2001-2022, states with and without an RPS"}
+d <- as.data.frame(panel)
+d$group <- ifelse(d$rps_adoption %in% 1, "RPS in force", "No RPS")
+avg <- aggregate(re_share_nonhydro ~ year + group, data = d, FUN = mean)
+
+par(mar = c(4, 4.5, 2.5, 1), las = 1)
+plot(NA, xlim = range(avg$year), ylim = c(0, max(avg$re_share_nonhydro) * 1.1),
+     xlab = "", ylab = "Non-hydro renewable share", main = "Renewable generation share, state average")
+cols <- c("RPS in force" = "#1b7837", "No RPS" = "#8c510a")
+for (g in names(cols)) {
+  s <- avg[avg$group == g, ]
+  lines(s$year, s$re_share_nonhydro, col = cols[g], lwd = 3)
+}
+legend("topleft", names(cols), col = cols, lwd = 3, bty = "n")
+```
+
+```{r co2-change, eval = has_keys, fig.height = 5, fig.alt = "Change in CO2 per capita 2005-2022 against the 2022 nominal RPS requirement"}
+w <- merge(d[d$year == 2005, c("state", "co2_pc")],
+           d[d$year == 2022, c("state", "co2_pc", "rps_nominal")],
+           by = "state", suffixes = c("_2005", "_2022"))
+w$change <- 100 * (w$co2_pc_2022 / w$co2_pc_2005 - 1)
+
+par(mar = c(4.5, 4.5, 2.5, 1), las = 1)
+plot(w$rps_nominal, w$change, pch = 19, col = "#2166ac",
+     xlab = "Nominal RPS requirement, 2022 (share of sales)",
+     ylab = "Change in CO2 per capita, 2005-2022 (%)",
+     main = "CO2 per capita change vs RPS stringency")
+lab <- w$rps_nominal > 0
+text(w$rps_nominal[lab], w$change[lab], w$state[lab], pos = 3, cex = 0.6, col = "grey30")
+abline(lm(change ~ rps_nominal, data = w), col = "#b2182b", lwd = 2)
+```
+
+### Straight into estimation
+
+```{r fixest, eval = has_keys && requireNamespace("fixest", quietly = TRUE), warning = FALSE}
 library(fixest)
 feols(log(co2_pc) ~ rps_nominal + log(gdp_real_pc) | state + year,
       data = as_pdata(panel, "fixest"), cluster = ~state)
 ```
 
-RPS measures work offline:
+This two-way fixed-effects regression is only an illustration of the
+workflow, not a causal estimate.
 
-```{r}
+```{r export, eval = has_keys}
+f <- file.path(tempdir(), "us_state_panel.dta")
+export_panel(panel, f)      # Stata file + us_state_panel_codebook.csv
+file.exists(f)
+```
+
+## RPS stringency (works offline)
+
+The RPS measures come from the coding bundled with the package, so they need
+no API key:
+
+```{r rps-table}
 library(rpspanel)
 rps_stringency(c(2010, 2020, 2030), states = c("CA", "WA", "TX"),
                method = c("adoption", "nominal"))
 ```
+
+```{r rps-plot, fig.alt = "Nominal RPS requirements over time for six states"}
+s <- rps_stringency(2000:2035, states = c("CA", "NY", "OR", "IL", "NC", "WA"),
+                    method = "nominal")
+cols <- c(CA = "#1b9e77", NY = "#d95f02", OR = "#7570b3",
+          IL = "#e7298a", NC = "#66a61e", WA = "#e6ab02")
+
+par(mar = c(4, 4.5, 2.5, 1), las = 1)
+plot(NA, xlim = c(2000, 2035), ylim = c(0, 1), xlab = "",
+     ylab = "Required share of retail sales", main = "Nominal RPS requirements")
+for (st in names(cols)) {
+  x <- s[s$state == st, ]
+  lines(x$year, x$rps_nominal, col = cols[st], lwd = 2.5)
+}
+legend("topleft", names(cols), col = cols, lwd = 2.5, bty = "n", ncol = 2)
+```
+
+Use `interpolation = "step"` to follow the legal schedule exactly instead of
+interpolating between target years. See `vignette("rps-stringency")` for all
+five methods.
 
 ## Package layers
 
@@ -82,10 +208,13 @@ rps_stringency(c(2010, 2020, 2030), states = c("CA", "WA", "TX"),
 
 ## Status of the RPS coding
 
-The RPS rules bundled in `inst/extdata/` are a **starter coding** of 14 RPS
-states plus 12 states without a mandatory RPS. No row has yet been verified
-against statutes (`verified = FALSE`), several coverage shares are not yet
-coded, and the remaining states are reported as `NA`. Corrections are very
+The RPS rules bundled in `inst/extdata/` code all 50 states and DC: 33
+states with a mandatory RPS (including the repealed standards in KS, MT and
+WV, and the ended or repealed ones in AZ, OH and TX) and 18 without one. The
+RPS rows and the voluntary-goal rows have been checked against the statutes,
+DSIRE program pages and the LBNL RPS & CES data (June 2026), and their
+sources are cited in the `source` and `notes` columns (`verified = TRUE`).
+The 12 original no-RPS rows have not been re-checked. Corrections are very
 welcome through GitHub issues.
 
 ## Data sources

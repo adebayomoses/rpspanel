@@ -34,10 +34,12 @@ year, target type, coverage share, design features, sources and notes) and
 one row per legal target in `rules$targets`. States missing from the coding
 are *not yet coded*, and get `NA` rather than zero.
 
-> **Status.** The bundled coding is a starter set. Every row has
-> `verified = FALSE` until it has been hand-checked against the statute or
-> DSIRE program page. Treat results as preliminary, and please report
-> corrections. You can supply your own coding with
+> **Status.** The bundled coding covers all 50 states and DC. Rows marked
+> `verified = TRUE` have been checked against the statute, the DSIRE
+> program page and the LBNL RPS & CES data, with sources in the `source`
+> and `notes` columns. Single-number simplifications (one coverage share,
+> one schedule for states with utility-specific targets) are described in
+> `notes`. Please report corrections. You can supply your own coding with
 > `rps_rules(rules_path = ..., targets_path = ...)`.
 
 ## Methods

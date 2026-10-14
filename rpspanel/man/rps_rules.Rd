@@ -41,10 +41,11 @@ coded}, and their stringency measures are \code{NA} rather than zero.
 }
 \section{Status of the bundled coding}{
 
-The bundled coding is a starter set. Every row has \code{verified = FALSE}
-until it has been hand-checked against the statute or DSIRE program page,
-as set out in the package's validation plan. Please report corrections on
-the issue tracker.
+The bundled coding covers all 50 states and DC. Rows with
+\code{verified = TRUE} have been hand-checked against the statute, the DSIRE
+program page and the LBNL RPS & CES data, as set out in the package's
+validation plan; \code{source} and \code{notes} give the citations and coding
+choices. Please report corrections on the issue tracker.
 }
 
 \examples{

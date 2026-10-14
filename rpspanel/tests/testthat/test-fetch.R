@@ -56,7 +56,7 @@ test_that("missing keys and network failures give classed errors", {
 
 test_that("fetch_bea parses numbers, footnotes and NIPA lines", {
   local_mocked_bindings(perform_json = fake_perform)
-  g <- fetch_bea("SAGDP9N", 1, states = c("CA", "TX"), cache = FALSE)
+  g <- fetch_bea("SAGDP9", 1, states = c("CA", "TX"), cache = FALSE)
   expect_equal(nrow(g), 4) # US row dropped
   expect_equal(g$value[g$state == "CA" & g$year == 2019], 2.8e6)
   d <- fetch_bea("T10109", 1, dataset = "NIPA", cache = FALSE)

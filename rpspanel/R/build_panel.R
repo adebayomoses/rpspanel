@@ -254,6 +254,10 @@ baseline_from_panel <- function(panel, rules) {
 
 #' @export
 print.rps_panel <- function(x, n = 6, ...) {
+  if (!all(c("state", "year") %in% names(x)) || nrow(x) == 0) {
+    print(as.data.frame(unclass_panel(x)), ...)
+    return(invisible(x))
+  }
   yrs <- range(x$year)
   vars <- setdiff(names(x), c("state", "state_name", "fips", "year"))
   cat(sprintf("<rps_panel>: %d states x %d-%d (%d rows), %d variables\n",

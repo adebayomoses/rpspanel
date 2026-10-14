@@ -16,7 +16,7 @@ fetch_bea(
 )
 }
 \arguments{
-\item{table}{BEA table name, for example \code{"SAGDP9N"} or \code{"T10109"}.}
+\item{table}{BEA table name, for example \code{"SAGDP9"} or \code{"T10109"}.}
 
 \item{line_code}{Line code (Regional) or line number (NIPA).}
 
@@ -47,10 +47,10 @@ deflators).
 \details{
 Useful Regional tables and line codes:
 \itemize{
-\item \code{SAGDP9N} line 1: real GDP, all industries (millions of chained 2017
+\item \code{SAGDP9} line 1: real GDP, all industries (millions of chained 2017
 dollars); line 12: manufacturing.
-\item \code{SAGDP2N} line 1: nominal GDP (millions of current dollars).
-\item \code{SAINC1} line 1: personal income (thousands of dollars); line 2:
+\item \code{SAGDP2} line 1: nominal GDP (millions of current dollars).
+\item \code{SAINC1} line 1: personal income (millions of dollars); line 2:
 population (persons); line 3: per capita personal income (dollars).
 }
 
@@ -59,7 +59,7 @@ Useful NIPA table: \code{T10109} line 1, the implicit price deflator for GDP
 }
 \examples{
 \dontshow{if (nzchar(Sys.getenv("BEA_API_KEY"))) withAutoprint(\{ # examplesIf}
-fetch_bea("SAGDP9N", 1, states = "CA", years = 2015:2020)
+fetch_bea("SAGDP9", 1, states = "CA", years = 2015:2020)
 fetch_bea("T10109", 1, dataset = "NIPA")
 \dontshow{\}) # examplesIf}
 }
