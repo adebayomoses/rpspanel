@@ -109,7 +109,7 @@ source_info <- data.frame(
           "https://apps.bea.gov/regional/",
           "https://apps.bea.gov/iTable/?reqid=19",
           "https://www.census.gov/programs-surveys/acs",
-          "https://github.com/afrirates/rpspanel",
+          "https://github.com/adebayomoses/rpspanel",
           NA),
   stringsAsFactors = FALSE
 )

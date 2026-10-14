@@ -18,8 +18,8 @@ Description: Builds a documented, reproducible state-by-year panel for the 50
     <doi:10.1016/j.enpol.2009.10.067>, plus design-flexibility indicators).
     Output works directly with the 'plm', 'fixest' and 'csdm' packages.
 License: MIT + file LICENSE
-URL: https://github.com/afrirates/rpspanel
-BugReports: https://github.com/afrirates/rpspanel/issues
+URL: https://github.com/adebayomoses/rpspanel
+BugReports: https://github.com/adebayomoses/rpspanel/issues
 Depends:
     R (>= 4.1.0)
 Imports:

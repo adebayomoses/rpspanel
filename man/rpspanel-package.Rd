@@ -44,8 +44,8 @@ file as \code{EIA_API_KEY} and \code{BEA_API_KEY} (and optionally \code{CENSUS_A
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/afrirates/rpspanel}
-  \item Report bugs at \url{https://github.com/afrirates/rpspanel/issues}
+  \item \url{https://github.com/adebayomoses/rpspanel}
+  \item Report bugs at \url{https://github.com/adebayomoses/rpspanel/issues}
 }
 
 }

@@ -4,7 +4,7 @@
 # rpspanel
 
 <!-- badges: start -->
-[![R-CMD-check](https://github.com/afrirates/rpspanel/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/afrirates/rpspanel/actions/workflows/R-CMD-check.yaml)
+[![R-CMD-check](https://github.com/adebayomoses/rpspanel/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/adebayomoses/rpspanel/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 **rpspanel** gives researchers a documented, reproducible US state-by-year
@@ -27,7 +27,7 @@ stringency measures, in a few lines of R.
 
 ```r
 # install.packages("remotes")
-remotes::install_github("afrirates/rpspanel")
+remotes::install_github("adebayomoses/rpspanel")
 ```
 
 ## API keys
@@ -154,7 +154,7 @@ cite_sources(panel)
 #> 
 #> U.S. Bureau of Economic Analysis (2026). National Income and Product Accounts, Table 1.1.9. https://apps.bea.gov/iTable/?reqid=19. Retrieved 2026-10-14 22:07:36 UTC.
 #> 
-#> rpspanel authors (2026). rpspanel RPS rule coding (bundled). https://github.com/afrirates/rpspanel. Coding shipped with rpspanel 0.0.0.9000.
+#> rpspanel authors (2026). rpspanel RPS rule coding (bundled). https://github.com/adebayomoses/rpspanel. Coding shipped with rpspanel 0.0.0.9000.
 #> 
 #> Adebayo, M. (2026). rpspanel: US state energy-economy panels with RPS stringency measures. R package version 0.0.0.9000.
 ```

@@ -1,6 +1,6 @@
 rpspanel_user_agent <- function() {
   paste0("rpspanel/", utils::packageVersion("rpspanel"),
-         " (https://github.com/afrirates/rpspanel)")
+         " (https://github.com/adebayomoses/rpspanel)")
 }
 
 build_request <- function(url, query = list()) {
