@@ -1,0 +1,116 @@
+---
+title: "Getting started with rpspanel"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting started with rpspanel}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+has_keys <- nzchar(Sys.getenv("EIA_API_KEY")) && nzchar(Sys.getenv("BEA_API_KEY"))
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+options(rpspanel.cache_dir = file.path(tempdir(), "rpspanel-vignette"))
+```
+
+`rpspanel` builds a documented, reproducible state-by-year panel for the 50
+US states and DC. It combines EIA energy, electricity and CO2 data, BEA
+GDP, income and population, and standardised Renewable Portfolio Standard
+(RPS) stringency measures.
+
+```{r setup}
+library(rpspanel)
+```
+
+## API keys
+
+EIA and BEA data need free API keys:
+
+* EIA: <https://www.eia.gov/opendata/register.php>
+* BEA: <https://apps.bea.gov/API/signup/>
+
+Put them in your `.Renviron` file (open it with
+`usethis::edit_r_environ()`), then restart R:
+
+```
+EIA_API_KEY=your-eia-key
+BEA_API_KEY=your-bea-key
+```
+
+## One call, one panel
+
+```{r panel, eval = has_keys}
+panel <- build_panel(years = 2005:2022)
+panel
+```
+
+Pick variables by group or by name. Derived variables fetch what they need:
+
+```{r vars, eval = has_keys}
+small <- build_panel(
+  states = c("CA", "TX", "NY", "IA"),
+  years  = 2010:2022,
+  vars   = c("co2_pc", "re_share_nonhydro", "gdp_real_pc", "rps_nominal")
+)
+head(small)
+```
+
+If one source cannot be reached, its variables are left out with a warning
+and the rest of the panel is still returned.
+
+## Codebook and citations
+
+Every variable has a definition, unit, source series and transformation:
+
+```{r codebook}
+head(codebook(), 10)
+codebook(group = "rps")
+```
+
+`cite_sources()` lists the sources used, with the date each was retrieved:
+
+```{r cite}
+cite_sources(c("eia_seds", "eia_co2", "bea_regional"))
+```
+
+## Caching and vintages
+
+Downloads are cached, so a panel can be rebuilt offline with exactly the same
+data vintage. Use `refresh = TRUE` to download fresh data, `rps_cache_list()`
+to see what is cached and `rps_cache_clear()` to empty the cache.
+
+```{r cache}
+rps_cache_dir()
+```
+
+## RPS measures without API keys
+
+RPS stringency measures come from the coded rules bundled with the package,
+so they work offline:
+
+```{r rps}
+rps <- build_panel(states = c("CA", "WA", "NC", "TX"), years = 2005:2025,
+                   groups = "rps",
+                   rps_methods = c("adoption", "nominal", "flexibility"))
+rps[rps$year %in% c(2010, 2020), ]
+```
+
+See `vignette("rps-stringency")` for the methods.
+
+## Estimation and export
+
+The panel works directly with `plm`, `fixest` and `csdm`:
+
+```{r estimate, eval = has_keys && requireNamespace("fixest", quietly = TRUE)}
+library(fixest)
+p <- build_panel(years = 2001:2022, vars = c("co2_pc", "rps_nominal", "gdp_real_pc"))
+feols(log(co2_pc) ~ rps_nominal + log(gdp_real_pc) | state + year,
+      data = as_pdata(p, "fixest"), cluster = ~state)
+```
+
+Export to CSV, Stata or Parquet, with the codebook alongside:
+
+```{r export}
+f <- file.path(tempdir(), "rps_panel.dta")
+if (requireNamespace("haven", quietly = TRUE)) export_panel(rps, f)
+```

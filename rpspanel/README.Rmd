@@ -1,0 +1,97 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+# rpspanel
+
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/afrirates/rpspanel/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/afrirates/rpspanel/actions/workflows/R-CMD-check.yaml)
+<!-- badges: end -->
+
+**rpspanel** gives researchers a documented, reproducible US state-by-year
+energy-economy panel (50 states + DC), with Renewable Portfolio Standard (RPS)
+stringency measures, in a few lines of R.
+
+* **One call, one panel.** `build_panel()` merges EIA energy use, prices and
+  production (SEDS), electricity generation and retail sales, state CO2
+  emissions, and BEA GDP, income and population.
+* **Reproducible.** Every variable's source, vintage and transformation is
+  recorded; `codebook()` and `cite_sources()` document the panel. Downloads
+  are cached so vintages stay pinned.
+* **Better policy measures.** `rps_stringency()` returns adoption, nominal,
+  coverage-adjusted and incremental (Yin and Powers 2010) requirements, plus
+  design-flexibility indicators.
+* **Fits existing tools.** `as_pdata()` hands the panel to `plm`, `fixest`
+  or `csdm`; `export_panel()` writes CSV, Stata or Parquet.
+
+## Installation
+
+```r
+# install.packages("remotes")
+remotes::install_github("afrirates/rpspanel")
+```
+
+## API keys
+
+Register for free keys at <https://www.eia.gov/opendata/register.php> and
+<https://apps.bea.gov/API/signup/>, then add them to `.Renviron`:
+
+```
+EIA_API_KEY=your-eia-key
+BEA_API_KEY=your-bea-key
+```
+
+## Example
+
+```{r, eval = FALSE}
+library(rpspanel)
+
+panel <- build_panel(years = 2005:2022)
+codebook(panel)
+cite_sources(panel)
+
+library(fixest)
+feols(log(co2_pc) ~ rps_nominal + log(gdp_real_pc) | state + year,
+      data = as_pdata(panel, "fixest"), cluster = ~state)
+```
+
+RPS measures work offline:
+
+```{r}
+library(rpspanel)
+rps_stringency(c(2010, 2020, 2030), states = c("CA", "WA", "TX"),
+               method = c("adoption", "nominal"))
+```
+
+## Package layers
+
+| Module | Functions |
+|---|---|
+| Fetch and cache | `fetch_eia()`, `fetch_bea()`, `fetch_census()`, `fetch_rps()`, `rps_cache_*()` |
+| Harmonise | `harmonise_states()`, `deflate()`, `convert_units()` |
+| Panel builder | `build_panel()` |
+| RPS stringency | `rps_rules()`, `rps_stringency()` |
+| Documentation | `codebook()`, `cite_sources()` |
+| Helpers | `as_pdata()`, `export_panel()` |
+
+## Status of the RPS coding
+
+The RPS rules bundled in `inst/extdata/` are a **starter coding** of 14 RPS
+states plus 12 states without a mandatory RPS. No row has yet been verified
+against statutes (`verified = FALSE`), several coverage shares are not yet
+coded, and the remaining states are reported as `NA`. Corrections are very
+welcome through GitHub issues.
+
+## Data sources
+
+US Energy Information Administration (SEDS, electricity, CO2 emissions), US
+Bureau of Economic Analysis (Regional and NIPA accounts) and US Census
+Bureau (ACS). The package downloads data on demand and does not redistribute
+it. Related work: the [PUDL](https://catalyst.coop/pudl/) project's
+machine-readable RPS and Clean Energy Standard data.

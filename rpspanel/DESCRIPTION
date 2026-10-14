@@ -1,0 +1,45 @@
+Package: rpspanel
+Type: Package
+Title: Research-Ready US State Energy-Economy Panels with Renewable Portfolio Standard Stringency Measures
+Version: 0.0.0.9000
+Authors@R:
+    person("Moses", "Adebayo", , "afrirates@gmail.com", role = c("aut", "cre", "cph"))
+Description: Builds a documented, reproducible state-by-year panel for the 50
+    US states and the District of Columbia that combines energy consumption,
+    prices and production from the US Energy Information Administration (EIA)
+    State Energy Data System, electricity generation and retail sales, state
+    energy-related carbon dioxide emissions, and state GDP, income and
+    population from the Bureau of Economic Analysis (BEA). Data are downloaded
+    on demand through the official APIs and cached locally, with the source,
+    vintage and transformation of every variable recorded in a codebook.
+    Renewable Portfolio Standard (RPS) rules are turned into standardised
+    annual stringency indices (adoption, nominal, coverage-adjusted and
+    incremental requirements, following Yin and Powers (2010)
+    <doi:10.1016/j.enpol.2009.10.067>, plus design-flexibility indicators).
+    Output works directly with the 'plm', 'fixest' and 'csdm' packages.
+License: MIT + file LICENSE
+URL: https://github.com/afrirates/rpspanel
+BugReports: https://github.com/afrirates/rpspanel/issues
+Depends:
+    R (>= 4.1.0)
+Imports:
+    cli,
+    httr2 (>= 1.0.0),
+    stats,
+    tools,
+    utils
+Suggests:
+    arrow,
+    fixest,
+    haven,
+    knitr,
+    plm,
+    rmarkdown,
+    testthat (>= 3.1.7),
+    withr
+VignetteBuilder: knitr
+Config/testthat/edition: 3
+Encoding: UTF-8
+Language: en-US
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3

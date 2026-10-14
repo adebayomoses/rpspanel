@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "rpspanel: Research-Ready US State Energy-Economy Panels with Renewable Portfolio Standard Stringency Measures"
+version: 0.0.0.9000
+license: MIT
+type: software
+authors:
+  - family-names: Adebayo
+    given-names: Moses
+    email: afrirates@gmail.com
+repository-code: "https://github.com/afrirates/rpspanel"
+keywords:
+  - R
+  - energy economics
+  - renewable portfolio standard
+  - panel data
+  - EIA
+  - BEA
