@@ -26,6 +26,17 @@ perform_json <- function(req, what) {
       )
     }
   )
+  # Some APIs answer errors (such as a missing key) with an HTML page
+  if (!grepl("json", httr2::resp_content_type(resp) %||% "", fixed = TRUE)) {
+    hint <- if (identical(httr2::resp_header(resp, "X-DataWebAPI-KeyError"), "1") ||
+                grepl("(missing|invalid)_key", httr2::resp_url(resp))) {
+      "The service rejected the request because the API key is missing or invalid."
+    } else {
+      "The service returned a web page instead of data; it may be down or the request invalid."
+    }
+    cli::cli_abort(c("Could not download {what}.", x = hint),
+                   class = "rpspanel_http_error")
+  }
   httr2::resp_body_json(resp, simplifyVector = TRUE)
 }
 

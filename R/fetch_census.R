@@ -8,22 +8,24 @@
 #'
 #' @param years Years to download (2005 onward).
 #' @param variable ACS variable code.
-#' @param api_key Optional Census API key. Defaults to the `CENSUS_API_KEY`
-#'   environment variable; small queries work without a key.
+#' @param api_key Census API key. Defaults to the `CENSUS_API_KEY`
+#'   environment variable. The Census API rejects requests without a key;
+#'   register for a free one at <https://api.census.gov/data/key_signup.html>.
 #' @inheritParams fetch_eia
 #'
-#' @return A data frame with columns `state`, `year`, `series`, `value`,
-#'   `unit`. Years that fail to download are skipped with a warning.
+#' @return A data frame with columns `state`, `year`, `series`, `value` and
+#'   `unit` ("persons" for the default population variable, otherwise `NA`;
+#'   look up other ACS variables in the Census documentation). Years that
+#'   fail to download are skipped with a warning.
 #' @export
-#' @examples
-#' \donttest{
-#' try(fetch_census(2019, states = c("CA", "TX")))
-#' }
+#' @examplesIf nzchar(Sys.getenv("CENSUS_API_KEY"))
+#' fetch_census(2019, states = c("CA", "TX"))
 fetch_census <- function(years, variable = "B01003_001E", states = NULL,
                          api_key = NULL, cache = TRUE, refresh = FALSE) {
   years <- as_years(years)
   states <- resolve_states(states)
-  api_key <- api_key %||% Sys.getenv("CENSUS_API_KEY")
+  api_key <- get_api_key(api_key, "CENSUS_API_KEY", "Census",
+                         "https://api.census.gov/data/key_signup.html")
   if (any(years == 2020L)) {
     cli::cli_inform("Skipping 2020: no standard ACS 1-year release.")
     years <- setdiff(years, 2020L)
@@ -53,6 +55,7 @@ fetch_census <- function(years, variable = "B01003_001E", states = NULL,
   }
   out <- do.call(rbind, pieces)
   out <- out[out$state %in% states, , drop = FALSE]
+  out <- out[order(out$state, out$year), , drop = FALSE]
   rownames(out) <- NULL
   attr(out, "rps_source") <- "census_acs"
   attr(out, "rps_retrieved") <- attr(pieces[[1]], "rps_retrieved")
@@ -74,7 +77,7 @@ census_tidy <- function(body, year, variable) {
     year = as.integer(year),
     series = variable,
     value = parse_num(m[, which(header == variable)]),
-    unit = "persons",
+    unit = if (variable == "B01003_001E") "persons" else NA_character_,
     stringsAsFactors = FALSE
   )
 }

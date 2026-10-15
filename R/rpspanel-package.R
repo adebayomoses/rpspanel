@@ -18,7 +18,8 @@
 #'
 #' @section API keys:
 #' EIA and BEA data require free API keys. Store them in your `.Renviron`
-#' file as `EIA_API_KEY` and `BEA_API_KEY` (and optionally `CENSUS_API_KEY`).
+#' file as `EIA_API_KEY` and `BEA_API_KEY`, plus `CENSUS_API_KEY` if you use
+#' [fetch_census()].
 #'
 #' @section Options:
 #' * `rpspanel.cache_dir`: directory used for the download cache (default

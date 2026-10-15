@@ -77,3 +77,25 @@ test_that("census responses are parsed", {
   expect_equal(out$state, c("CA", NA))
   expect_equal(out$value[1], 39538223)
 })
+
+test_that("fetch_census needs a key", {
+  withr::local_envvar(CENSUS_API_KEY = "")
+  expect_error(fetch_census(2019, cache = FALSE), class = "rpspanel_no_key")
+})
+
+test_that("HTML error pages become classed errors, not parse failures", {
+  local_mocked_bindings(
+    req_perform = function(req, ...) {
+      httr2::response(
+        status_code = 200,
+        url = "https://api.census.gov/data/missing_key.html",
+        headers = list(`Content-Type` = "text/html", `X-DataWebAPI-KeyError` = "1"),
+        body = charToRaw("<html>Missing key</html>")
+      )
+    },
+    .package = "httr2"
+  )
+  req <- rpspanel:::census_request(2019, "B01003_001E", "")
+  expect_error(rpspanel:::perform_json(req, "Census ACS 2019"),
+               "missing or invalid", class = "rpspanel_http_error")
+})

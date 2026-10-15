@@ -28,7 +28,8 @@ Documentation helpers (\code{\link[=codebook]{codebook()}}, \code{\link[=cite_so
 \section{API keys}{
 
 EIA and BEA data require free API keys. Store them in your \code{.Renviron}
-file as \code{EIA_API_KEY} and \code{BEA_API_KEY} (and optionally \code{CENSUS_API_KEY}).
+file as \code{EIA_API_KEY} and \code{BEA_API_KEY}, plus \code{CENSUS_API_KEY} if you use
+\code{\link[=fetch_census]{fetch_census()}}.
 }
 
 \section{Options}{

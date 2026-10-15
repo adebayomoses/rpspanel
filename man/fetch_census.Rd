@@ -21,16 +21,19 @@ fetch_census(
 \item{states}{States to download; any form accepted by
 \code{\link[=harmonise_states]{harmonise_states()}}. \code{NULL} means all 50 states and DC.}
 
-\item{api_key}{Optional Census API key. Defaults to the \code{CENSUS_API_KEY}
-environment variable; small queries work without a key.}
+\item{api_key}{Census API key. Defaults to the \code{CENSUS_API_KEY}
+environment variable. The Census API rejects requests without a key;
+register for a free one at \url{https://api.census.gov/data/key_signup.html}.}
 
 \item{cache}{Use the local download cache.}
 
 \item{refresh}{Ignore any cached copy and download again.}
 }
 \value{
-A data frame with columns \code{state}, \code{year}, \code{series}, \code{value},
-\code{unit}. Years that fail to download are skipped with a warning.
+A data frame with columns \code{state}, \code{year}, \code{series}, \code{value} and
+\code{unit} ("persons" for the default population variable, otherwise \code{NA};
+look up other ACS variables in the Census documentation). Years that
+fail to download are skipped with a warning.
 }
 \description{
 Retrieves a state-level variable from the American Community Survey
@@ -40,7 +43,7 @@ available for every year. ACS 1-year estimates start in 2005, and the
 standard 2020 release does not exist, so that year is skipped.
 }
 \examples{
-\donttest{
-try(fetch_census(2019, states = c("CA", "TX")))
-}
+\dontshow{if (nzchar(Sys.getenv("CENSUS_API_KEY"))) withAutoprint(\{ # examplesIf}
+fetch_census(2019, states = c("CA", "TX"))
+\dontshow{\}) # examplesIf}
 }
