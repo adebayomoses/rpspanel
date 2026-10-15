@@ -36,7 +36,8 @@ panel_groups <- c("energy", "electricity", "emissions", "economy", "rps")
 #' @examples
 #' # RPS measures only: no API key needed
 #' p <- build_panel(states = c("CA", "TX", "NY"), years = 2000:2025,
-#'                  groups = "rps")
+#'                  groups = "rps",
+#'                  rps_methods = c("adoption", "nominal", "flexibility"))
 #' head(p)
 #'
 #' @examplesIf nzchar(Sys.getenv("EIA_API_KEY")) && nzchar(Sys.getenv("BEA_API_KEY"))
@@ -276,8 +277,10 @@ print.rps_panel <- function(x, n = 6, ...) {
   }
   yrs <- range(x$year)
   vars <- setdiff(names(x), c("state", "state_name", "fips", "year"))
-  cat(sprintf("<rps_panel>: %d states x %d-%d (%d rows), %d variables\n",
-              length(unique(x$state)), yrs[1], yrs[2], nrow(x), length(vars)))
+  n_st <- length(unique(x$state))
+  cat(sprintf("<rps_panel>: %d state%s x %d-%d (%d rows), %d variable%s\n",
+              n_st, if (n_st == 1) "" else "s", yrs[1], yrs[2], nrow(x),
+              length(vars), if (length(vars) == 1) "" else "s"))
   src <- attr(x, "sources")
   if (!is.null(src) && nrow(src)) {
     cat("Sources:", paste(src$source, collapse = ", "), "\n")

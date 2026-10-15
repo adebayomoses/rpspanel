@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
-title: "rpspanel: Research-Ready US State Energy-Economy Panels with Renewable Portfolio Standard Stringency Measures"
-version: 0.0.0.9000
+title: "rpspanel: US State Energy-Economy Panels with Renewable Portfolio Standards"
+version: 0.1.0
 license: MIT
 type: software
 authors:

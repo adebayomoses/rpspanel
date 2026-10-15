@@ -1,7 +1,7 @@
 Package: rpspanel
 Type: Package
-Title: Research-Ready US State Energy-Economy Panels with Renewable Portfolio Standard Stringency Measures
-Version: 0.0.0.9000
+Title: US State Energy-Economy Panels with Renewable Portfolio Standards
+Version: 0.1.0
 Authors@R:
     person("Moses", "Adebayo", , "afrirates@gmail.com", role = c("aut", "cre", "cph"))
 Description: Builds a documented, reproducible state-by-year panel for the 50

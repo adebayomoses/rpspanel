@@ -40,8 +40,8 @@ codebook <- function(x = NULL, group = NULL) {
 #'   `source` in [codebook()]), or `NULL` for all sources.
 #' @param format `"text"` for plain-text references or `"bibtex"`.
 #'
-#' @return A character vector of references, printed with [cat()] style
-#'   separators, returned invisibly.
+#' @return A character vector of references of class `rps_citation`, which
+#'   prints one reference per paragraph.
 #' @export
 #' @examples
 #' cite_sources(c("eia_seds", "bea_regional"))
@@ -80,15 +80,19 @@ cite_sources <- function(x = NULL, format = c("text", "bibtex")) {
   }, character(1))
   pkg <- if (format == "text") {
     paste0("Adebayo, M. (", format(Sys.Date(), "%Y"), "). rpspanel: US state ",
-           "energy-economy panels with RPS stringency measures. R package version ",
+           "energy-economy panels with renewable portfolio standards. R package version ",
            utils::packageVersion("rpspanel"), ".")
   } else {
     paste0("@Manual{rpspanel,\n  author = {Moses Adebayo},\n  title = {rpspanel: ",
-           "US State Energy-Economy Panels with RPS Stringency Measures},\n  note = {R package version ",
+           "US State Energy-Economy Panels with Renewable Portfolio Standards},\n  note = {R package version ",
            utils::packageVersion("rpspanel"), "},\n  year = {", format(Sys.Date(), "%Y"), "},\n}")
   }
-  refs <- c(refs, pkg)
-  cat(refs, sep = "\n\n")
+  structure(c(refs, pkg), class = "rps_citation")
+}
+
+#' @export
+print.rps_citation <- function(x, ...) {
+  cat(unclass(x), sep = "\n\n")
   cat("\n")
-  invisible(refs)
+  invisible(x)
 }

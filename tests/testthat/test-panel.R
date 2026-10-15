@@ -25,7 +25,8 @@ test_that("build_panel merges sources, derives variables and adds RPS", {
                     "bea_nipa", "rps_bundled") %in% src$source))
   expect_equal(codebook(p)$variable, vars)
   expect_output(print(p), "rps_panel")
-  expect_output(cite_sources(p), "Energy Information Administration")
+  expect_output(print(cite_sources(p)), "Energy Information Administration")
+  expect_s3_class(cite_sources(p), "rps_citation")
 })
 
 test_that("build_panel keeps going when a source fails", {

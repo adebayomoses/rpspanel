@@ -13,8 +13,8 @@ cite_sources(x = NULL, format = c("text", "bibtex"))
 \item{format}{\code{"text"} for plain-text references or \code{"bibtex"}.}
 }
 \value{
-A character vector of references, printed with \code{\link[=cat]{cat()}} style
-separators, returned invisibly.
+A character vector of references of class \code{rps_citation}, which
+prints one reference per paragraph.
 }
 \description{
 Lists the citation for every source used in a panel, including the

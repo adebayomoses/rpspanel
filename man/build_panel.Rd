@@ -69,7 +69,8 @@ still returned.
 \examples{
 # RPS measures only: no API key needed
 p <- build_panel(states = c("CA", "TX", "NY"), years = 2000:2025,
-                 groups = "rps")
+                 groups = "rps",
+                 rps_methods = c("adoption", "nominal", "flexibility"))
 head(p)
 
 \dontshow{if (nzchar(Sys.getenv("EIA_API_KEY")) && nzchar(Sys.getenv("BEA_API_KEY"))) withAutoprint(\{ # examplesIf}

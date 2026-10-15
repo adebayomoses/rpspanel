@@ -1,4 +1,4 @@
-# rpspanel 0.0.0.9000
+# rpspanel 0.1.0
 
 * Initial version following the project plan.
 * Fetch layer: `fetch_eia()`, `fetch_bea()`, `fetch_census()` and `fetch_rps()`, with a local download cache and graceful failure when a service is unavailable.

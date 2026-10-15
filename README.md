@@ -4,46 +4,45 @@
 # rpspanel
 
 <!-- badges: start -->
+
 [![R-CMD-check](https://github.com/adebayomoses/rpspanel/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/adebayomoses/rpspanel/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-**rpspanel** gives researchers a documented, reproducible US state-by-year
-energy-economy panel (50 states + DC), with Renewable Portfolio Standard (RPS)
-stringency measures, in a few lines of R.
+**rpspanel** gives researchers a documented, reproducible US
+state-by-year energy-economy panel (50 states + DC), with Renewable
+Portfolio Standard (RPS) stringency measures, in a few lines of R.
 
-* **One call, one panel.** `build_panel()` merges EIA energy use, prices and
-  production (SEDS), electricity generation and retail sales, state CO2
-  emissions, and BEA GDP, income and population.
-* **Reproducible.** Every variable's source, vintage and transformation is
-  recorded; `codebook()` and `cite_sources()` document the panel. Downloads
-  are cached so vintages stay pinned.
-* **Better policy measures.** `rps_stringency()` returns adoption, nominal,
-  coverage-adjusted and incremental (Yin and Powers 2010) requirements, plus
-  design-flexibility indicators.
-* **Fits existing tools.** `as_pdata()` hands the panel to `plm`, `fixest`
-  or `csdm`; `export_panel()` writes CSV, Stata or Parquet.
+- **One call, one panel.** `build_panel()` merges EIA energy use, prices
+  and production (SEDS), electricity generation and retail sales, state
+  CO2 emissions, and BEA GDP, income and population.
+- **Reproducible.** Every variable’s source, vintage and transformation
+  is recorded; `codebook()` and `cite_sources()` document the panel.
+  Downloads are cached so vintages stay pinned.
+- **Better policy measures.** `rps_stringency()` returns adoption,
+  nominal, coverage-adjusted and incremental (Yin and Powers 2010)
+  requirements, plus design-flexibility indicators.
+- **Fits existing tools.** `as_pdata()` hands the panel to `plm`,
+  `fixest` or `csdm`; `export_panel()` writes CSV, Stata or Parquet.
 
 ## Installation
 
-```r
+``` r
 # install.packages("remotes")
 remotes::install_github("adebayomoses/rpspanel")
 ```
 
 ## API keys
 
-Register for free keys at <https://www.eia.gov/opendata/register.php> and
-<https://apps.bea.gov/API/signup/>, then add them to `.Renviron`:
+Register for free keys at <https://www.eia.gov/opendata/register.php>
+and <https://apps.bea.gov/API/signup/>, then add them to `.Renviron`:
 
-```
-EIA_API_KEY=your-eia-key
-BEA_API_KEY=your-bea-key
-```
+    EIA_API_KEY=your-eia-key
+    BEA_API_KEY=your-bea-key
 
 ## Live example
 
-Everything below is real output, produced by knitting this README against
-the live EIA and BEA APIs (15 October 2026).
+Everything below is real output, produced by knitting this README
+against the live EIA and BEA APIs (15 October 2026).
 
 ### One call builds the whole panel
 
@@ -59,7 +58,7 @@ panel <- build_panel(years = 2001:2022)
 #> Fetching bea_regional (6 series)
 #> Fetching bea_nipa (1 series)
 Sys.time() - t0
-#> Time difference of 18.53986 secs
+#> Time difference of 1.75906 mins
 
 dim(panel)
 #> [1] 1122   56
@@ -87,7 +86,7 @@ names(panel)
 print(panel[panel$state == "CA" & panel$year >= 2018,
             c("state", "year", "energy_cons_total", "gen_total", "re_share_nonhydro",
               "co2_total", "gdp_real", "population", "rps_nominal")])
-#> <rps_panel>: 1 states x 2018-2022 (5 rows), 7 variables
+#> <rps_panel>: 1 state x 2018-2022 (5 rows), 7 variables
 #>     state year energy_cons_total gen_total re_share_nonhydro co2_total gdp_real
 #> 106    CA 2018           7294353  195465.6         0.2999626  356.6808  2850609
 #> 107    CA 2019           7232052  201784.2         0.2920013  356.5132  2969066
@@ -103,21 +102,21 @@ print(panel[panel$state == "CA" & panel$year >= 2018,
 ```
 
 The first build downloads every series from the seven sources. After
-that the data come from the local cache, so the same vintage is used every
-time until you pass `refresh = TRUE`.
+that the data come from the local cache, so the same vintage is used
+every time until you pass `refresh = TRUE`.
 
 ### Where every number comes from
 
 ``` r
 attr(panel, "sources")[c("source", "retrieved")]
 #>             source           retrieved
-#> 1         eia_seds 2026-10-15 13:13:20
-#> 2   eia_generation 2026-10-15 13:13:21
-#> 3 eia_retail_sales 2026-10-15 13:13:22
-#> 4          eia_co2 2026-10-15 13:13:23
-#> 5     bea_regional 2026-10-15 13:13:25
-#> 6         bea_nipa 2026-10-15 13:13:35
-#> 7      rps_bundled          0.0.0.9000
+#> 1         eia_seds 2026-10-15 13:36:55
+#> 2   eia_generation 2026-10-15 13:37:23
+#> 3 eia_retail_sales 2026-10-15 13:37:24
+#> 4          eia_co2 2026-10-15 13:37:32
+#> 5     bea_regional 2026-10-15 13:37:34
+#> 6         bea_nipa 2026-10-15 13:37:40
+#> 7      rps_bundled               0.1.0
 
 head(codebook(panel), 8)
 #>            variable  group                                          label
@@ -142,21 +141,21 @@ head(codebook(panel), 8)
 
 ``` r
 cite_sources(panel)
-#> U.S. Energy Information Administration (2026). State Energy Data System (SEDS). https://www.eia.gov/state/seds/. Retrieved 2026-10-15 13:13:20 UTC.
+#> U.S. Energy Information Administration (2026). State Energy Data System (SEDS). https://www.eia.gov/state/seds/. Retrieved 2026-10-15 13:36:55 UTC.
 #> 
-#> U.S. Energy Information Administration (2026). Electric Power Operational Data (Forms EIA-923, EIA-906, EIA-920). https://www.eia.gov/electricity/data/state/. Retrieved 2026-10-15 13:13:21 UTC.
+#> U.S. Energy Information Administration (2026). Electric Power Operational Data (Forms EIA-923, EIA-906, EIA-920). https://www.eia.gov/electricity/data/state/. Retrieved 2026-10-15 13:37:23 UTC.
 #> 
-#> U.S. Energy Information Administration (2026). Electricity Retail Sales (Form EIA-861). https://www.eia.gov/electricity/data/state/. Retrieved 2026-10-15 13:13:22 UTC.
+#> U.S. Energy Information Administration (2026). Electricity Retail Sales (Form EIA-861). https://www.eia.gov/electricity/data/state/. Retrieved 2026-10-15 13:37:24 UTC.
 #> 
-#> U.S. Energy Information Administration (2026). State Energy-Related Carbon Dioxide Emissions. https://www.eia.gov/environment/emissions/state/. Retrieved 2026-10-15 13:13:23 UTC.
+#> U.S. Energy Information Administration (2026). State Energy-Related Carbon Dioxide Emissions. https://www.eia.gov/environment/emissions/state/. Retrieved 2026-10-15 13:37:32 UTC.
 #> 
-#> U.S. Bureau of Economic Analysis (2026). Regional Economic Accounts (SAGDP, SAINC tables). https://apps.bea.gov/regional/. Retrieved 2026-10-15 13:13:25 UTC.
+#> U.S. Bureau of Economic Analysis (2026). Regional Economic Accounts (SAGDP, SAINC tables). https://apps.bea.gov/regional/. Retrieved 2026-10-15 13:37:34 UTC.
 #> 
-#> U.S. Bureau of Economic Analysis (2026). National Income and Product Accounts, Table 1.1.9. https://apps.bea.gov/iTable/?reqid=19. Retrieved 2026-10-15 13:13:35 UTC.
+#> U.S. Bureau of Economic Analysis (2026). National Income and Product Accounts, Table 1.1.9. https://apps.bea.gov/iTable/?reqid=19. Retrieved 2026-10-15 13:37:40 UTC.
 #> 
-#> rpspanel authors (2026). rpspanel RPS rule coding (bundled). https://github.com/adebayomoses/rpspanel. Coding shipped with rpspanel 0.0.0.9000.
+#> rpspanel authors (2026). rpspanel RPS rule coding (bundled). https://github.com/adebayomoses/rpspanel. Coding shipped with rpspanel 0.1.0.
 #> 
-#> Adebayo, M. (2026). rpspanel: US state energy-economy panels with RPS stringency measures. R package version 0.0.0.9000.
+#> Adebayo, M. (2026). rpspanel: US state energy-economy panels with renewable portfolio standards. R package version 0.1.0.
 ```
 
 ### A first look at the data
@@ -204,7 +203,7 @@ for (g in names(cols)) {
 legend("topleft", names(cols), col = cols, lwd = 3, bty = "n")
 ```
 
-![Non-hydro renewable share of generation, 2001-2022, states with and without an RPS](man/figures/README-renewables-1.png)
+<img src="man/figures/README-renewables-1.png" alt="Non-hydro renewable share of generation, 2001-2022, states with and without an RPS" width="100%" />
 
 ``` r
 w <- merge(d[d$year == 2005, c("state", "co2_pc")],
@@ -222,7 +221,7 @@ text(w$rps_nominal[lab], w$change[lab], w$state[lab], pos = 3, cex = 0.6, col = 
 abline(lm(change ~ rps_nominal, data = w), col = "#b2182b", lwd = 2)
 ```
 
-![Change in CO2 per capita 2005-2022 against the 2022 nominal RPS requirement](man/figures/README-co2-change-1.png)
+<img src="man/figures/README-co2-change-1.png" alt="Change in CO2 per capita 2005-2022 against the 2022 nominal RPS requirement" width="100%" />
 
 ### Straight into estimation
 
@@ -255,8 +254,8 @@ file.exists(f)
 
 ## RPS stringency (works offline)
 
-The RPS measures come from the coding bundled with the package, so they need
-no API key:
+The RPS measures come from the coding bundled with the package, so they
+need no API key:
 
 ``` r
 library(rpspanel)
@@ -290,23 +289,24 @@ for (st in names(cols)) {
 legend("topleft", names(cols), col = cols, lwd = 2.5, bty = "n", ncol = 2)
 ```
 
-![Nominal RPS requirements over time for six states](man/figures/README-rps-plot-1.png)
+<img src="man/figures/README-rps-plot-1.png" alt="Nominal RPS requirements over time for six states" width="100%" />
 
 Texas shows `NA` here because its standard is set in megawatts. Passing
-retail sales (`sales =`), which `build_panel()` does automatically, converts
-Texas's and Iowa's targets to a share of covered sales. The conversion assumes
-a capacity factor (0.33 by default, adjustable with `capacity_factor =`), so
-those values are approximate; they agree with Berkeley Lab's equivalents to
-within about one percentage point in every year.
+retail sales (`sales =`), which `build_panel()` does automatically,
+converts Texas’s and Iowa’s targets to a share of covered sales. The
+conversion assumes a capacity factor (0.33 by default, adjustable with
+`capacity_factor =`), so those values are approximate; they agree with
+Berkeley Lab’s equivalents to within about one percentage point in every
+year.
 
-Use `interpolation = "step"` to follow the legal schedule exactly instead of
-interpolating between target years. See `vignette("rps-stringency")` for all
-five methods.
+Use `interpolation = "step"` to follow the legal schedule exactly
+instead of interpolating between target years. See
+`vignette("rps-stringency")` for all five methods.
 
 ## Package layers
 
 | Module | Functions |
-|---|---|
+|----|----|
 | Fetch and cache | `fetch_eia()`, `fetch_bea()`, `fetch_census()`, `fetch_rps()`, `rps_cache_*()` |
 | Harmonise | `harmonise_states()`, `deflate()`, `convert_units()` |
 | Panel builder | `build_panel()` |
@@ -317,20 +317,21 @@ five methods.
 ## Status of the RPS coding
 
 The RPS rules bundled in `inst/extdata/` code all 50 states and DC: 33
-states with a mandatory RPS (including the repealed standards in KS, MT and
-WV, and the ended or repealed ones in AZ, OH and TX) and 18 without one. The
-RPS rows and the voluntary-goal rows have been checked against the statutes,
-DSIRE program pages and the LBNL RPS & CES data (June 2026), and every row
-cites its sources in the `source` and `notes` columns (`verified = TRUE` for
-all 51). Nebraska is coded as having no RPS: Berkeley Lab counts the
-board-adopted clean energy commitments of its public power utilities as a
-standard from 2040, but they are utility rather than state policies.
-Corrections are very welcome through GitHub issues.
+states with a mandatory RPS (including the repealed standards in KS, MT
+and WV, and the ended or repealed ones in AZ, OH and TX) and 18 without
+one. The RPS rows and the voluntary-goal rows have been checked against
+the statutes, DSIRE program pages and the LBNL RPS & CES data (June
+2026), and every row cites its sources in the `source` and `notes`
+columns (`verified = TRUE` for all 51). Nebraska is coded as having no
+RPS: Berkeley Lab counts the board-adopted clean energy commitments of
+its public power utilities as a standard from 2040, but they are utility
+rather than state policies. Corrections are very welcome through GitHub
+issues.
 
 ## Data sources
 
-US Energy Information Administration (SEDS, electricity, CO2 emissions), US
-Bureau of Economic Analysis (Regional and NIPA accounts) and US Census
-Bureau (ACS). The package downloads data on demand and does not redistribute
-it. Related work: the [PUDL](https://catalyst.coop/pudl/) project's
-machine-readable RPS and Clean Energy Standard data.
+US Energy Information Administration (SEDS, electricity, CO2 emissions),
+US Bureau of Economic Analysis (Regional and NIPA accounts) and US
+Census Bureau (ACS). The package downloads data on demand and does not
+redistribute it. Related work: the [PUDL](https://catalyst.coop/pudl/)
+project’s machine-readable RPS and Clean Energy Standard data.
