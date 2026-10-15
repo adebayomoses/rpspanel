@@ -13,3 +13,4 @@
 * API responses that are web pages instead of data (for example a rejected key) now raise a clear `rpspanel_http_error` instead of a parse failure.
 * API keys are only required when data actually need downloading, so a cached panel can be rebuilt offline without keys.
 * Parquet export tested with `arrow` (values and column types round-trip unchanged).
+* The 12 original no-RPS rows (AL, AK, AR, FL, GA, ID, KY, LA, MS, NE, TN, WY) are now verified against the LBNL June 2026 data and cite their sources, so all 51 rows are verified. Nebraska's utility-adopted clean energy commitments (counted by LBNL as a CES from 2040) are documented but not coded as a state RPS.

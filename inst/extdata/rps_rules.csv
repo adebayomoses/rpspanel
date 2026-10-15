@@ -1,16 +1,16 @@
 state,has_rps,policy_name,enacted_year,first_compliance_year,repeal_year,target_type,final_target,final_target_year,coverage_share,out_of_state_rec,carveout,carveout_types,acp,acp_usd_mwh,baseline_re_share,source,verified,notes
-AL,0,,,,,,,,,,,,,,,No mandatory RPS,FALSE,
-AK,0,,,,,,,,,,,,,,,No mandatory RPS (non-binding goal only),FALSE,
-AR,0,,,,,,,,,,,,,,,No mandatory RPS,FALSE,
-FL,0,,,,,,,,,,,,,,,No mandatory RPS,FALSE,
-GA,0,,,,,,,,,,,,,,,No mandatory RPS,FALSE,
-ID,0,,,,,,,,,,,,,,,No mandatory RPS,FALSE,
-KY,0,,,,,,,,,,,,,,,No mandatory RPS,FALSE,
-LA,0,,,,,,,,,,,,,,,No mandatory RPS (pilot program only),FALSE,
-MS,0,,,,,,,,,,,,,,,No mandatory RPS,FALSE,
-NE,0,,,,,,,,,,,,,,,No mandatory RPS,FALSE,
-TN,0,,,,,,,,,,,,,,,No mandatory RPS,FALSE,
-WY,0,,,,,,,,,,,,,,,No mandatory RPS,FALSE,
+AL,0,,,,,,,,,,,,,,,LBNL RPS & CES Targets and Demand data file (June 2026): no RPS or CES target listed,TRUE,No mandatory RPS or CES; checked against LBNL June 2026 data
+AK,0,,,,,,,,,,,,,,,LBNL RPS & CES Targets and Demand data file (June 2026): no RPS or CES target listed; Railbelt RPS bills (SB 101/HB 121 2023-24; HB 153/SB 149 2025-26) did not pass,TRUE,No mandatory RPS; Railbelt RPS bills stalled and the 2026 session ended without one (Environment America 2026 session wrap)
+AR,0,,,,,,,,,,,,,,,LBNL RPS & CES Targets and Demand data file (June 2026): no RPS or CES target listed,TRUE,No mandatory RPS or CES; checked against LBNL June 2026 data
+FL,0,,,,,,,,,,,,,,,LBNL RPS & CES Targets and Demand data file (June 2026): no RPS or CES target listed,TRUE,No mandatory RPS or CES; checked against LBNL June 2026 data
+GA,0,,,,,,,,,,,,,,,LBNL RPS & CES Targets and Demand data file (June 2026): no RPS or CES target listed,TRUE,No mandatory RPS or CES; checked against LBNL June 2026 data
+ID,0,,,,,,,,,,,,,,,LBNL RPS & CES Targets and Demand data file (June 2026): no RPS or CES target listed,TRUE,No mandatory RPS or CES; checked against LBNL June 2026 data
+KY,0,,,,,,,,,,,,,,,LBNL RPS & CES Targets and Demand data file (June 2026): no RPS or CES target listed,TRUE,No mandatory RPS or CES; checked against LBNL June 2026 data
+LA,0,,,,,,,,,,,,,,,LBNL RPS & CES Targets and Demand data file (June 2026): no RPS or CES target listed; LPSC Docket R-28271 Subdocket B (Renewable Energy Pilot Program 2010-2013),TRUE,"No mandatory RPS; LPSC pilot concluded Aug 2013 finding an RPS not needed; New Orleans city RCPS (2021) is municipal, not statewide"
+MS,0,,,,,,,,,,,,,,,LBNL RPS & CES Targets and Demand data file (June 2026): no RPS or CES target listed,TRUE,No mandatory RPS or CES; checked against LBNL June 2026 data
+NE,0,,,,,,,,,,,,,,,LBNL RPS & CES Targets and Demand data file (June 2026),TRUE,"No state-mandated RPS; LBNL lists board-adopted clean energy commitments of LES, NPPD and OPPD as a CES from 2040 (about 58% of sales); not coded because they are utility, not state, policies"
+TN,0,,,,,,,,,,,,,,,LBNL RPS & CES Targets and Demand data file (June 2026): no RPS or CES target listed,TRUE,No mandatory RPS or CES; checked against LBNL June 2026 data
+WY,0,,,,,,,,,,,,,,,LBNL RPS & CES Targets and Demand data file (June 2026): no RPS or CES target listed,TRUE,No mandatory RPS or CES; checked against LBNL June 2026 data
 AZ,1,Renewable Energy Standard and Tariff,2006,2006,2026,share,0.15,2025,0.589,1,1,distributed generation,0,,,ACC REST rules (A.A.C. R14-2-1801 et seq.; adopted 11/14/2006); DSIRE program 268; LBNL RPS & CES Targets and Demand (June 2026); ACC repeal vote 3/4/2026 (KJZZ/ACC news 3/5/2026),TRUE,Applies to ACC-regulated IOUs and coops; coverage = LBNL RPS-applicable / statewide sales 2023; RECs must be bundled and deliverable to Arizona; DG carve-out 30% of requirement from 2012; ACC voted 5-0 on 3/4/2026 to repeal REST so repeal_year 2026; predecessor Environmental Portfolio Standard (2001; 0.2% rising to 1.1%) not coded
 CA,1,California RPS,2002,2003,,share,0.60,2030,0.985,1,0,,0,,,SB 1078 (2002); SB 107 (2006); SBX1-2 (2011); SB 350 (2015); SB 100 (2018); Cal. Pub. Util. Code 399.11 et seq.; DSIRE program 840; LBNL RPS & CES Targets and Demand (June 2026),TRUE,Coverage = LBNL 2023 (all retail sellers incl. POUs since SBX1-2; pre-2011 POU coverage not modelled); 2003 target is the LBNL large-IOU starting level (baseline plus 1%/yr); out-of-state RECs limited by portfolio content categories; 100% clean electricity by 2045 (SB 100) is a CES and not coded
 CO,1,Colorado RES,2004,2007,,share,0.30,2020,0.990,1,1,distributed generation,0,,,Amendment 37 (2004); HB 07-1281; HB 10-1001; C.R.S. 40-2-124; DSIRE program 133; LBNL RPS & CES Targets and Demand (June 2026),TRUE,Schedule is for investor-owned utilities; coops and large munis have 10-20% by 2020 (LBNL sales-weighted average was 24% in 2020); coverage = LBNL 2023 share of sales of all obligated utilities; no ACP (2% retail rate cap instead)

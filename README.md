@@ -315,10 +315,12 @@ The RPS rules bundled in `inst/extdata/` code all 50 states and DC: 33
 states with a mandatory RPS (including the repealed standards in KS, MT and
 WV, and the ended or repealed ones in AZ, OH and TX) and 18 without one. The
 RPS rows and the voluntary-goal rows have been checked against the statutes,
-DSIRE program pages and the LBNL RPS & CES data (June 2026), and their
-sources are cited in the `source` and `notes` columns (`verified = TRUE`).
-The 12 original no-RPS rows have not been re-checked. Corrections are very
-welcome through GitHub issues.
+DSIRE program pages and the LBNL RPS & CES data (June 2026), and every row
+cites its sources in the `source` and `notes` columns (`verified = TRUE` for
+all 51). Nebraska is coded as having no RPS: Berkeley Lab counts the
+board-adopted clean energy commitments of its public power utilities as a
+standard from 2040, but they are utility rather than state policies.
+Corrections are very welcome through GitHub issues.
 
 ## Data sources
 
