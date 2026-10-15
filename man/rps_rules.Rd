@@ -31,7 +31,9 @@ The coding has two tables:
 \code{out_of_state_rec}, \code{carveout}, \code{acp} (0/1 design indicators),
 \code{carveout_types}, \code{acp_usd_mwh}, \code{baseline_re_share} (optional existing
 renewable share at enactment; filled from data by \code{\link[=build_panel]{build_panel()}}),
-\code{source}, \code{verified} and \code{notes}.
+\code{source}, \code{verified} and \code{notes}. Optional: \code{baseline_includes_hydro}
+(1 if the targets count existing hydro, so the incremental baseline should
+too; default 0).
 
 \strong{targets} (one row per legal target): \code{state}, \code{year}, \code{target} (share
 of sales between 0 and 1, or MW for capacity targets).

@@ -89,9 +89,13 @@ legend("topleft", names(cols), col = cols, lwd = 2, bty = "n")
 
 The incremental measure subtracts what the state already produced when it
 enacted the standard, separating new pressure from existing renewables.
-`build_panel()` fills the baseline from EIA generation data (the non-hydro
-renewable share in the enactment year, or the first later year with data).
-You can also pass your own baseline:
+`build_panel()` fills the baseline from EIA generation data: the renewable
+share in the enactment year (or the first later year with data), measured
+the same way as the target. For New York, whose targets count existing hydro,
+the baseline includes hydro (about 19% in 2004, close to the 19.3% written
+into its RPS order); elsewhere it is the non-hydro share. A generation-based
+baseline is a weak guide for states that import most of their electricity,
+such as Vermont. You can always pass your own baseline:
 
 ```{r incremental}
 base <- data.frame(state = c("CA", "OR"), baseline_share = c(0.11, 0.03))
@@ -103,6 +107,22 @@ inc
 
 `OR` has `NA` coverage-adjusted and incremental values because its coverage
 share is not yet coded.
+
+### Capacity-based standards (Texas and Iowa)
+
+Texas and Iowa set their standards in megawatts rather than as a share of
+sales. `rps_stringency()` converts them, like Berkeley Lab does, into the
+share of covered sales the capacity would supply:
+`MW x capacity factor x 8,760 hours / covered sales`. The capacity factor
+defaults to 0.33 (typical of wind) and can be changed. `build_panel()`
+supplies retail sales automatically; with `rps_stringency()` you pass them:
+
+```{r capacity}
+tx_sales <- data.frame(state = "TX", year = c(2010, 2015), sales_gwh = c(358000, 380000))
+rps_stringency(c(2010, 2015), "TX", method = "nominal", sales = tx_sales)
+rps_stringency(c(2010, 2015), "TX", method = "nominal", sales = tx_sales,
+               capacity_factor = 0.4)
+```
 
 ## A template for Yin and Powers (2010)-style regressions
 

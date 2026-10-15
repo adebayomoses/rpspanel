@@ -43,7 +43,7 @@ BEA_API_KEY=your-bea-key
 ## Live example
 
 Everything below is real output, produced by knitting this README against
-the live EIA and BEA APIs (14 October 2026).
+the live EIA and BEA APIs (15 October 2026).
 
 ### One call builds the whole panel
 
@@ -59,7 +59,7 @@ panel <- build_panel(years = 2001:2022)
 #> Fetching bea_regional (6 series)
 #> Fetching bea_nipa (1 series)
 Sys.time() - t0
-#> Time difference of 14.73475 secs
+#> Time difference of 18.53986 secs
 
 dim(panel)
 #> [1] 1122   56
@@ -111,12 +111,12 @@ time until you pass `refresh = TRUE`.
 ``` r
 attr(panel, "sources")[c("source", "retrieved")]
 #>             source           retrieved
-#> 1         eia_seds 2026-10-14 22:07:25
-#> 2   eia_generation 2026-10-14 22:07:26
-#> 3 eia_retail_sales 2026-10-14 22:07:26
-#> 4          eia_co2 2026-10-14 22:07:28
-#> 5     bea_regional 2026-10-14 22:07:31
-#> 6         bea_nipa 2026-10-14 22:07:36
+#> 1         eia_seds 2026-10-15 13:13:20
+#> 2   eia_generation 2026-10-15 13:13:21
+#> 3 eia_retail_sales 2026-10-15 13:13:22
+#> 4          eia_co2 2026-10-15 13:13:23
+#> 5     bea_regional 2026-10-15 13:13:25
+#> 6         bea_nipa 2026-10-15 13:13:35
 #> 7      rps_bundled          0.0.0.9000
 
 head(codebook(panel), 8)
@@ -142,17 +142,17 @@ head(codebook(panel), 8)
 
 ``` r
 cite_sources(panel)
-#> U.S. Energy Information Administration (2026). State Energy Data System (SEDS). https://www.eia.gov/state/seds/. Retrieved 2026-10-14 22:07:25 UTC.
+#> U.S. Energy Information Administration (2026). State Energy Data System (SEDS). https://www.eia.gov/state/seds/. Retrieved 2026-10-15 13:13:20 UTC.
 #> 
-#> U.S. Energy Information Administration (2026). Electric Power Operational Data (Forms EIA-923, EIA-906, EIA-920). https://www.eia.gov/electricity/data/state/. Retrieved 2026-10-14 22:07:26 UTC.
+#> U.S. Energy Information Administration (2026). Electric Power Operational Data (Forms EIA-923, EIA-906, EIA-920). https://www.eia.gov/electricity/data/state/. Retrieved 2026-10-15 13:13:21 UTC.
 #> 
-#> U.S. Energy Information Administration (2026). Electricity Retail Sales (Form EIA-861). https://www.eia.gov/electricity/data/state/. Retrieved 2026-10-14 22:07:26 UTC.
+#> U.S. Energy Information Administration (2026). Electricity Retail Sales (Form EIA-861). https://www.eia.gov/electricity/data/state/. Retrieved 2026-10-15 13:13:22 UTC.
 #> 
-#> U.S. Energy Information Administration (2026). State Energy-Related Carbon Dioxide Emissions. https://www.eia.gov/environment/emissions/state/. Retrieved 2026-10-14 22:07:28 UTC.
+#> U.S. Energy Information Administration (2026). State Energy-Related Carbon Dioxide Emissions. https://www.eia.gov/environment/emissions/state/. Retrieved 2026-10-15 13:13:23 UTC.
 #> 
-#> U.S. Bureau of Economic Analysis (2026). Regional Economic Accounts (SAGDP, SAINC tables). https://apps.bea.gov/regional/. Retrieved 2026-10-14 22:07:31 UTC.
+#> U.S. Bureau of Economic Analysis (2026). Regional Economic Accounts (SAGDP, SAINC tables). https://apps.bea.gov/regional/. Retrieved 2026-10-15 13:13:25 UTC.
 #> 
-#> U.S. Bureau of Economic Analysis (2026). National Income and Product Accounts, Table 1.1.9. https://apps.bea.gov/iTable/?reqid=19. Retrieved 2026-10-14 22:07:36 UTC.
+#> U.S. Bureau of Economic Analysis (2026). National Income and Product Accounts, Table 1.1.9. https://apps.bea.gov/iTable/?reqid=19. Retrieved 2026-10-15 13:13:35 UTC.
 #> 
 #> rpspanel authors (2026). rpspanel RPS rule coding (bundled). https://github.com/adebayomoses/rpspanel. Coding shipped with rpspanel 0.0.0.9000.
 #> 
@@ -168,12 +168,12 @@ snap <- snap[snap$year == 2022 & snap$state %in% c("CA", "TX", "NY", "IA", "WY",
                "elec_price_real", "rps_nominal")]
 print(snap, digits = 3, row.names = FALSE)
 #>  state co2_pc re_share_nonhydro gdp_real_pc elec_price_real rps_nominal
-#>     CA   8.34            0.3438       80796           18.92       0.385
-#>     IA  22.33            0.6353       63181            8.11          NA
-#>     NY   8.42            0.0658       89492           15.53       0.362
-#>     TX  22.01            0.2639       66566            8.61          NA
-#>     VT   8.50            0.4733       54895           14.40       0.590
-#>     WY  96.58            0.2150       64183            6.98       0.000
+#>     CA   8.34            0.3438       80796           18.92      0.3850
+#>     IA  22.33            0.6353       63181            8.11      0.0065
+#>     NY   8.42            0.0658       89492           15.53      0.3622
+#>     TX  22.01            0.2639       66566            8.61      0.0472
+#>     VT   8.50            0.4733       54895           14.40      0.5900
+#>     WY  96.58            0.2150       64183            6.98      0.0000
 ```
 
 National totals match the published figures (2020: about 4,570 million
@@ -230,19 +230,17 @@ abline(lm(change ~ rps_nominal, data = w), col = "#b2182b", lwd = 2)
 library(fixest)
 feols(log(co2_pc) ~ rps_nominal + log(gdp_real_pc) | state + year,
       data = as_pdata(panel, "fixest"), cluster = ~state)
-#> NOTES: 43 observations removed because of NA values (RHS: 43).
-#>        1/0 fixed-effect singleton was removed (1 observation).
 #> OLS estimation, Dep. Var.: log(co2_pc)
-#> Observations: 1,078
-#> Fixed-effects: state: 49,  year: 22
+#> Observations: 1,122
+#> Fixed-effects: state: 51,  year: 22
 #> Standard-errors: Clustered (state) 
-#>                   Estimate Std. Error   t value Pr(>|t|) 
-#> rps_nominal      -0.088296   0.142598 -0.619194  0.53872 
-#> log(gdp_real_pc)  0.178603   0.117772  1.516522  0.13595 
+#>                   Estimate Std. Error   t value Pr(>|t|)    
+#> rps_nominal      -0.099899   0.142014 -0.703447 0.485040    
+#> log(gdp_real_pc)  0.194634   0.111038  1.752866 0.085755 .  
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-#> RMSE: 0.065459     Adj. R2: 0.986861
-#>                  Within R2: 0.022481
+#> RMSE: 0.065123     Adj. R2: 0.986657
+#>                  Within R2: 0.027186
 ```
 
 This two-way fixed-effects regression is only an illustration of the
@@ -293,6 +291,13 @@ legend("topleft", names(cols), col = cols, lwd = 2.5, bty = "n", ncol = 2)
 ```
 
 ![Nominal RPS requirements over time for six states](man/figures/README-rps-plot-1.png)
+
+Texas shows `NA` here because its standard is set in megawatts. Passing
+retail sales (`sales =`), which `build_panel()` does automatically, converts
+Texas's and Iowa's targets to a share of covered sales. The conversion assumes
+a capacity factor (0.33 by default, adjustable with `capacity_factor =`), so
+those values are approximate; they agree with Berkeley Lab's equivalents to
+within about one percentage point in every year.
 
 Use `interpolation = "step"` to follow the legal schedule exactly instead of
 interpolating between target years. See `vignette("rps-stringency")` for all

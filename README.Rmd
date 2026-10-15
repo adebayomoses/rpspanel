@@ -191,6 +191,13 @@ for (st in names(cols)) {
 legend("topleft", names(cols), col = cols, lwd = 2.5, bty = "n", ncol = 2)
 ```
 
+Texas shows `NA` here because its standard is set in megawatts. Passing
+retail sales (`sales =`), which `build_panel()` does automatically, converts
+Texas's and Iowa's targets to a share of covered sales. The conversion assumes
+a capacity factor (0.33 by default, adjustable with `capacity_factor =`), so
+those values are approximate; they agree with Berkeley Lab's equivalents to
+within about one percentage point in every year.
+
 Use `interpolation = "step"` to follow the legal schedule exactly instead of
 interpolating between target years. See `vignette("rps-stringency")` for all
 five methods.

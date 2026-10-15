@@ -14,3 +14,7 @@
 * API keys are only required when data actually need downloading, so a cached panel can be rebuilt offline without keys.
 * Parquet export tested with `arrow` (values and column types round-trip unchanged).
 * The 12 original no-RPS rows (AL, AK, AR, FL, GA, ID, KY, LA, MS, NE, TN, WY) are now verified against the LBNL June 2026 data and cite their sources, so all 51 rows are verified. Nebraska's utility-adopted clean energy commitments (counted by LBNL as a CES from 2040) are documented but not coded as a state RPS.
+* `rps_stringency()` converts capacity-based (MW) standards (Texas, Iowa) into a share of covered sales with new `sales` and `capacity_factor` arguments, following Berkeley Lab's approach; `build_panel()` supplies retail sales automatically when an EIA key is available, so `rps_nominal` is no longer blank for these states.
+* New optional rules column `baseline_includes_hydro`: the incremental baseline now includes hydro for New York, whose targets count existing hydro (2004 baseline about 19%, matching the 19.3% legal baseline).
+* Fixed: a single target in force from enactment (Iowa) no longer breaks interpolation.
+* Texas is recoded so only the 5,880 MW (2015) schedule is binding; the 10,000 MW by 2025 figure is a non-binding goal (as in Berkeley Lab's data). Converted Texas shares now match Berkeley Lab's within about 0.6 percentage points in every year.

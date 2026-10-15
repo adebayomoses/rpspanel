@@ -1,4 +1,6 @@
 rps_only <- function() {
+  # No keys, so nothing is downloaded
+  withr::local_envvar(EIA_API_KEY = "", BEA_API_KEY = "")
   build_panel(states = c("CA", "TX"), years = 2010:2012, groups = "rps",
               rps_methods = c("adoption", "nominal"), quiet = TRUE)
 }

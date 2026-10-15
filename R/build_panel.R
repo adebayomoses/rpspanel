@@ -55,6 +55,13 @@ build_panel <- function(states = NULL, years = 2001:2022, vars = NULL,
   rps_methods <- match.arg(rps_methods, names(rps_method_cols), several.ok = TRUE)
   wanted <- select_vars(vars, groups, rps_methods)
   needed <- expand_deps(wanted)
+  # Capacity-based (MW) standards are converted with retail sales; fetch them
+  # when an EIA key is available rather than making RPS-only panels need one.
+  rps_req <- c("rps_nominal", "rps_coverage_adj", "rps_incremental")
+  if (any(rps_req %in% wanted) && !"elec_sales" %in% needed &&
+      nzchar(eia_key %||% Sys.getenv("EIA_API_KEY"))) {
+    needed <- c(needed, "elec_sales")
+  }
 
   say <- function(...) if (!quiet) cli::cli_inform(...)
   sources <- list()
@@ -112,8 +119,11 @@ build_panel <- function(states = NULL, years = 2001:2022, vars = NULL,
     if ("incremental" %in% rps_methods && "re_share_nonhydro" %in% names(panel)) {
       baseline <- baseline_from_panel(panel, rules)
     }
+    sales <- if ("elec_sales" %in% names(panel)) {
+      data.frame(state = panel$state, year = panel$year, sales_gwh = panel$elec_sales)
+    }
     s <- rps_stringency(years, states, method = rps_methods, rules = rules,
-                        baseline = baseline, ...)
+                        baseline = baseline, sales = sales, ...)
     panel <- merge(panel, s, by = c("state", "year"), all.x = TRUE)
     rps_src <- attr(rules, "rps_source") %||% "rps_bundled"
     sources[[rps_src]] <- data.frame(source = rps_src,
@@ -245,9 +255,15 @@ add_derived <- function(panel, needed, price_base_year, deflator_series) {
 baseline_from_panel <- function(panel, rules) {
   r <- rules$rules[rules$rules$has_rps %in% 1L, ]
   b <- vapply(seq_len(nrow(r)), function(i) {
-    d <- panel[panel$state == r$state[i] & !is.na(panel$re_share_nonhydro) &
-                 panel$year >= r$enacted_year[i], c("year", "re_share_nonhydro")]
-    if (nrow(d) == 0) NA_real_ else d$re_share_nonhydro[which.min(d$year)]
+    # Measure the baseline the way the target is defined
+    col <- if (r$baseline_includes_hydro[i] %in% 1L && "re_share_total" %in% names(panel)) {
+      "re_share_total"
+    } else {
+      "re_share_nonhydro"
+    }
+    d <- panel[panel$state == r$state[i] & !is.na(panel[[col]]) &
+                 panel$year >= r$enacted_year[i], c("year", col)]
+    if (nrow(d) == 0) NA_real_ else d[[col]][which.min(d$year)]
   }, numeric(1))
   data.frame(state = r$state, baseline_share = b, stringsAsFactors = FALSE)
 }

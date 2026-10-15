@@ -72,10 +72,52 @@ test_that("flexibility indicators are zero when no RPS is in force", {
   expect_equal(s$rps_acp, c(0, 1, 0, 0))
 })
 
-test_that("capacity standards give NA nominal shares", {
+test_that("capacity standards need sales to become shares", {
   s <- rps_stringency(2010, states = "TX", method = c("adoption", "nominal"))
   expect_equal(s$rps_adoption, 1L)
   expect_true(is.na(s$rps_nominal))
+})
+
+test_that("capacity standards convert MW to a share of covered sales", {
+  r <- rps_rules("TX")
+  cov <- r$rules$coverage_share
+  mw <- r$targets$target[r$targets$year == 2015]
+  sales <- data.frame(state = "TX", year = 2015, sales_gwh = 380000)
+  s <- rps_stringency(2015, "TX", method = c("nominal", "coverage_adjusted"),
+                      rules = r, sales = sales)
+  expect_equal(s$rps_nominal, mw * 0.33 * 8.76 / (380000 * cov))
+  expect_equal(s$rps_coverage_adj, mw * 0.33 * 8.76 / 380000)
+  # close to Berkeley Lab's published equivalent for 2015 (5.9%)
+  expect_equal(s$rps_nominal, 0.059, tolerance = 0.05)
+  # capacity factor is adjustable and scales the result
+  s2 <- rps_stringency(2015, "TX", method = "nominal", rules = r, sales = sales,
+                       capacity_factor = 0.4)
+  expect_equal(s2$rps_nominal, s$rps_nominal * 0.4 / 0.33)
+  # repealed in 2025: no requirement afterwards
+  s3 <- rps_stringency(2026, "TX", method = "nominal", rules = r,
+                       sales = data.frame(state = "TX", year = 2026, sales_gwh = 1))
+  expect_equal(s3$rps_nominal, 0)
+  expect_error(rps_stringency(2015, "TX", sales = sales, capacity_factor = 2), "between 0 and 1")
+  expect_error(rps_stringency(2015, "TX", sales = data.frame(state = "TX")), "sales_gwh")
+})
+
+test_that("a single target in force from enactment is held constant (Iowa)", {
+  r <- rps_rules("IA")
+  sales <- data.frame(state = "IA", year = c(1982, 2010), sales_gwh = 45000)
+  s <- rps_stringency(c(1982, 2010), "IA", method = "nominal", rules = r, sales = sales)
+  cov <- r$rules$coverage_share
+  expect_equal(s$rps_nominal, c(0, 105 * 0.33 * 8.76 / (45000 * cov)))
+  st <- rps_stringency(2010, "IA", method = "nominal", rules = r, sales = sales,
+                       interpolation = "step")
+  expect_equal(st$rps_nominal, s$rps_nominal[2])
+})
+
+test_that("baseline_includes_hydro is optional and set for NY", {
+  r <- rps_rules()
+  expect_equal(r$rules$state[r$rules$baseline_includes_hydro == 1], "NY")
+  old <- toy_rules()$rules
+  expect_false("baseline_includes_hydro" %in% names(old[setdiff(names(old), "baseline_includes_hydro")]))
+  expect_true(all(toy_rules()$rules$baseline_includes_hydro == 0))
 })
 
 test_that("fetch_rps returns bundled coding or reads files", {

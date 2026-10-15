@@ -12,7 +12,9 @@ rps_stringency(
   baseline = NULL,
   interpolation = c("linear", "step"),
   adopt_from = c("enactment", "first_compliance"),
-  floor_zero = FALSE
+  floor_zero = FALSE,
+  sales = NULL,
+  capacity_factor = 0.33
 )
 }
 \arguments{
@@ -35,6 +37,15 @@ generation at enactment. Overrides \code{baseline_re_share} in the rules.}
 \code{"first_compliance"}.}
 
 \item{floor_zero}{If \code{TRUE}, negative incremental requirements are set to 0.}
+
+\item{sales}{Optional data frame with columns \code{state}, \code{year} and
+\code{sales_gwh} (retail electricity sales, GWh, the same as EIA's million
+kWh), used to convert capacity-based standards into shares.
+\code{\link[=build_panel]{build_panel()}} supplies it from EIA retail sales.}
+
+\item{capacity_factor}{Assumed capacity factor of the resources that meet
+a capacity-based standard. The default 0.33 is typical of wind, which met
+most of the Texas and Iowa requirements.}
 }
 \value{
 A data frame with \code{state}, \code{year} and the columns for each method:
@@ -55,8 +66,11 @@ Zero before the first compliance year. Between legal targets the
 requirement is interpolated linearly (\code{interpolation = "linear"}) or held
 at the last legal target (\code{"step"}); after the final target year it is
 held constant. If the first coded target lies after the enactment year,
-linear interpolation starts from zero at enactment. \code{NA} for
-capacity-based (MW) standards.
+linear interpolation starts from zero at enactment. Capacity-based (MW)
+standards (Texas, Iowa) are converted to an equivalent share of covered
+sales: \code{MW * capacity_factor * 8.76 / (sales_gwh * coverage_share)},
+the same approach Berkeley Lab uses. This needs \code{sales}; without it they
+are \code{NA}.
 \item \code{coverage_adjusted}: nominal requirement times the share of retail sales
 covered by the standard.
 \item \code{incremental}: requirement beyond the renewable share the state already
@@ -64,7 +78,10 @@ had at enactment, following Yin and Powers (2010):
 \code{nominal * coverage - baseline_share} while the nominal requirement is
 positive, otherwise 0. The baseline is taken from \code{baseline}, or from
 the \code{baseline_re_share} column of the rules. Also returns the baseline
-used (\code{rps_baseline_share}).
+used (\code{rps_baseline_share}). \code{\link[=build_panel]{build_panel()}} measures the baseline the
+same way the target is defined: including hydro for states whose targets
+count existing hydro (\code{baseline_includes_hydro = 1}, New York),
+excluding it otherwise.
 \item \code{flexibility}: indicators for out-of-state renewable credits, carve-outs
 and alternative compliance payments, set to 0 when no RPS is in force.
 }
@@ -75,6 +92,10 @@ States missing from the rule coding get \code{NA} for every measure.
 s <- rps_stringency(2000:2030, states = c("CA", "WA", "TX", "FL"),
                     method = c("adoption", "nominal"))
 s[s$state == "WA" & s$year \%in\% 2011:2021, ]
+
+# Capacity (MW) standards become shares when sales are supplied
+tx_sales <- data.frame(state = "TX", year = 2015, sales_gwh = 380000)
+rps_stringency(2015, "TX", method = "nominal", sales = tx_sales)
 
 # Step interpolation follows the legal schedule exactly
 rps_stringency(2012:2020, states = "WA", method = "nominal",

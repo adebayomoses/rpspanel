@@ -5,6 +5,9 @@ rps_rule_cols <- c(
   "acp_usd_mwh", "baseline_re_share", "source", "verified", "notes"
 )
 
+# Optional columns and the value used when a user-supplied file lacks them.
+rps_optional_cols <- c(baseline_includes_hydro = 0L)
+
 #' Coded Renewable Portfolio Standard rules
 #'
 #' Reads the RPS rule coding that feeds [rps_stringency()]. By default this is
@@ -20,7 +23,9 @@ rps_rule_cols <- c(
 #' `out_of_state_rec`, `carveout`, `acp` (0/1 design indicators),
 #' `carveout_types`, `acp_usd_mwh`, `baseline_re_share` (optional existing
 #' renewable share at enactment; filled from data by [build_panel()]),
-#' `source`, `verified` and `notes`.
+#' `source`, `verified` and `notes`. Optional: `baseline_includes_hydro`
+#' (1 if the targets count existing hydro, so the incremental baseline should
+#' too; default 0).
 #'
 #' **targets** (one row per legal target): `state`, `year`, `target` (share
 #' of sales between 0 and 1, or MW for capacity targets).
@@ -68,10 +73,14 @@ new_rps_rules <- function(rules, targets) {
   if (!all(c("state", "year", "target") %in% names(targets))) {
     cli::cli_abort("RPS targets need columns {.field state}, {.field year} and {.field target}.")
   }
+  for (col in setdiff(names(rps_optional_cols), names(rules))) {
+    rules[[col]] <- rps_optional_cols[[col]]
+  }
   rules$state <- harmonise_states(rules$state)
   targets$state <- harmonise_states(targets$state)
   int_cols <- c("has_rps", "enacted_year", "first_compliance_year", "repeal_year",
-                "final_target_year", "out_of_state_rec", "carveout", "acp")
+                "final_target_year", "out_of_state_rec", "carveout", "acp",
+                "baseline_includes_hydro")
   num_cols <- c("final_target", "coverage_share", "acp_usd_mwh", "baseline_re_share")
   for (col in int_cols) rules[[col]] <- as.integer(rules[[col]])
   for (col in num_cols) rules[[col]] <- as.numeric(rules[[col]])
@@ -81,7 +90,8 @@ new_rps_rules <- function(rules, targets) {
   targets$target <- as.numeric(targets$target)
   targets <- targets[order(targets$state, targets$year), c("state", "year", "target")]
   rownames(targets) <- NULL
-  rules <- rules[order(rules$state), rps_rule_cols]
+  rules$baseline_includes_hydro[is.na(rules$baseline_includes_hydro)] <- 0L
+  rules <- rules[order(rules$state), c(rps_rule_cols, names(rps_optional_cols))]
   rownames(rules) <- NULL
   x <- structure(list(rules = rules, targets = targets), class = "rps_rules")
   validate_rps_rules(x)

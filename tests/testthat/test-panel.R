@@ -64,3 +64,22 @@ test_that("codebook documents every variable", {
   expect_false(any(is.na(cb$label) | is.na(cb$unit) | is.na(cb$source)))
   expect_equal(unique(codebook(group = "rps")$group), "rps")
 })
+
+test_that("build_panel converts MW standards and uses hydro baselines where targets count hydro", {
+  local_mocked_bindings(perform_json = fake_perform)
+  rules <- rps_rules(c("CA", "TX"))
+  rules$rules$baseline_includes_hydro[rules$rules$state == "CA"] <- 1L
+  p <- build_panel(states = c("CA", "TX"), years = 2019:2020,
+                   vars = c("rps_nominal", "rps_incremental", "rps_baseline_share"),
+                   rps_rules = rules, cache = FALSE, quiet = TRUE)
+  tx19 <- p[p$state == "TX" & p$year == 2019, ]
+  tx_mw <- stats::approx(rules$targets$year[rules$targets$state == "TX"],
+                         rules$targets$target[rules$targets$state == "TX"], xout = 2019, rule = 2)$y
+  tx_cov <- rules$rules$coverage_share[rules$rules$state == "TX"]
+  expect_equal(tx19$rps_nominal, tx_mw * 0.33 * 8.76 / (430000 * tx_cov))
+  # TX baseline excludes hydro: (wind + solar) / total in the first year with data
+  expect_equal(tx19$rps_baseline_share, (84000 + 5000) / 480000)
+  # CA flagged to include hydro
+  ca19 <- p[p$state == "CA" & p$year == 2019, ]
+  expect_equal(ca19$rps_baseline_share, (14000 + 28000 + 34000) / 200000)
+})

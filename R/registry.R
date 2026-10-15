@@ -72,14 +72,14 @@ registry <- rbind(
   # RPS
   var_row("rps_adoption", "rps", "RPS in force", "0/1", "rps", "adoption", "rps_stringency(method = \"adoption\")"),
   var_row("rps_nominal", "rps", "Nominal RPS requirement", "share of retail sales (0-1)", "rps", "nominal",
-          "Legal targets interpolated between target years; 0 before first compliance year"),
+          "Legal targets interpolated between target years; 0 before first compliance year; MW targets (TX, IA) converted to a share of covered sales (capacity factor 0.33 by default)"),
   var_row("rps_coverage_adj", "rps", "Coverage-adjusted RPS requirement", "share of retail sales (0-1)", "rps", "coverage_adjusted",
           "rps_nominal * coverage_share"),
   var_row("rps_incremental", "rps", "Incremental RPS requirement (Yin and Powers 2010)", "share (can be negative)", "rps", "incremental",
           "rps_coverage_adj - rps_baseline_share while rps_nominal > 0, else 0",
-          "re_share_nonhydro"),
+          "re_share_nonhydro,re_share_total"),
   var_row("rps_baseline_share", "rps", "Existing renewable share at RPS enactment", "share (0-1)", "rps", "incremental",
-          "Non-hydro renewable share of generation in the enactment year (or the first year with data)"),
+          "Renewable share of generation in the enactment year (or the first year with data); includes hydro where the targets count it (NY), otherwise non-hydro"),
   var_row("rps_oos_rec", "rps", "RPS accepts out-of-state renewable credits", "0/1", "rps", "flexibility", "Coded design feature times rps_adoption"),
   var_row("rps_carveout", "rps", "RPS has a resource carve-out", "0/1", "rps", "flexibility", "Coded design feature times rps_adoption"),
   var_row("rps_acp", "rps", "RPS has an alternative compliance payment", "0/1", "rps", "flexibility", "Coded design feature times rps_adoption")
