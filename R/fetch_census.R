@@ -24,8 +24,8 @@ fetch_census <- function(years, variable = "B01003_001E", states = NULL,
                          api_key = NULL, cache = TRUE, refresh = FALSE) {
   years <- as_years(years)
   states <- resolve_states(states)
-  api_key <- get_api_key(api_key, "CENSUS_API_KEY", "Census",
-                         "https://api.census.gov/data/key_signup.html")
+  get_key <- function() get_api_key(api_key, "CENSUS_API_KEY", "Census",
+                                    "https://api.census.gov/data/key_signup.html")
   if (any(years == 2020L)) {
     cli::cli_inform("Skipping 2020: no standard ACS 1-year release.")
     years <- setdiff(years, 2020L)
@@ -39,7 +39,8 @@ fetch_census <- function(years, variable = "B01003_001E", states = NULL,
     tryCatch(
       with_cache(key, "census_acs", cache = cache, refresh = refresh,
                  fetch = function() {
-                   body <- perform_json(census_request(y, variable, api_key),
+                   req <- census_request(y, variable, get_key())
+                   body <- perform_json(req,
                                         paste("Census ACS", y))
                    census_tidy(body, y, variable)
                  }),

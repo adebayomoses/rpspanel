@@ -74,14 +74,15 @@ fetch_eia <- function(dataset = c("seds", "co2", "generation", "retail_sales"),
   if (missing(series) || length(series) == 0) {
     cli::cli_abort("{.arg series} must name at least one series.")
   }
-  api_key <- get_api_key(api_key, "EIA_API_KEY", "EIA",
-                         "https://www.eia.gov/opendata/register.php")
+  # The key is only needed for a download, so cached data work offline
+  get_key <- function() get_api_key(api_key, "EIA_API_KEY", "EIA",
+                                    "https://www.eia.gov/opendata/register.php")
 
   key <- cache_key("eia", dataset, sort(series), states,
                    paste(range(years %||% 0L), collapse = "-"))
   with_cache(key, paste0("eia_", dataset), cache = cache, refresh = refresh,
     fetch = function() {
-      raw <- eia_download(spec, series, states, years, api_key)
+      raw <- eia_download(spec, series, states, years, get_key())
       eia_tidy(raw, spec, series, states)
     })
 }

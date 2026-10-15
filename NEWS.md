@@ -11,3 +11,5 @@
 * README now shows real output from a live run, with figures in `man/figures/`.
 * `fetch_census()` now requires a Census API key (the API rejects keyless requests) and was tested live against ACS 1-year data; output is sorted by state and year, and `unit` is only set for the default population variable.
 * API responses that are web pages instead of data (for example a rejected key) now raise a clear `rpspanel_http_error` instead of a parse failure.
+* API keys are only required when data actually need downloading, so a cached panel can be rebuilt offline without keys.
+* Parquet export tested with `arrow` (values and column types round-trip unchanged).

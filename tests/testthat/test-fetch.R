@@ -99,3 +99,20 @@ test_that("HTML error pages become classed errors, not parse failures", {
   expect_error(rpspanel:::perform_json(req, "Census ACS 2019"),
                "missing or invalid", class = "rpspanel_http_error")
 })
+
+test_that("cached data can be read without an API key", {
+  local_mocked_bindings(perform_json = fake_perform)
+  withr::local_options(rpspanel.cache_dir = withr::local_tempdir())
+  first <- fetch_eia("seds", "TETCB", states = "CA", years = 2019:2020)
+  g1 <- fetch_bea("SAGDP9", 1, states = "CA")
+  withr::local_envvar(EIA_API_KEY = "", BEA_API_KEY = "")
+  expect_equal(fetch_eia("seds", "TETCB", states = "CA", years = 2019:2020), first)
+  expect_equal(fetch_bea("SAGDP9", 1, states = "CA"), g1)
+  # a new download still asks for the key
+  expect_error(fetch_eia("seds", "TETCD", states = "CA"), class = "rpspanel_no_key")
+})
+
+test_that("fetch_bea asks for a key before downloading", {
+  withr::local_envvar(BEA_API_KEY = "")
+  expect_error(fetch_bea("SAGDP9", 1, cache = FALSE), class = "rpspanel_no_key")
+})

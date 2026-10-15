@@ -40,13 +40,14 @@ fetch_bea <- function(table, line_code, dataset = c("Regional", "NIPA"),
   dataset <- match.arg(dataset)
   states <- resolve_states(states)
   years <- as_years(years)
-  api_key <- get_api_key(api_key, "BEA_API_KEY", "BEA",
-                         "https://apps.bea.gov/API/signup/")
+  get_key <- function() get_api_key(api_key, "BEA_API_KEY", "BEA",
+                                    "https://apps.bea.gov/API/signup/")
 
   key <- cache_key("bea", dataset, table, line_code)
   out <- with_cache(key, paste0("bea_", tolower(dataset)), cache = cache, refresh = refresh,
     fetch = function() {
-      body <- perform_json(bea_request(table, line_code, dataset, api_key),
+      req <- bea_request(table, line_code, dataset, get_key())
+      body <- perform_json(req,
                            paste("BEA table", table))
       bea_tidy(body, table, line_code, dataset)
     })

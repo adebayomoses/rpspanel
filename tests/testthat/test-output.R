@@ -28,3 +28,14 @@ test_that("export_panel writes data and codebook", {
   d <- haven::read_dta(fd)
   expect_equal(attr(d$rps_nominal, "label"), "Nominal RPS requirement")
 })
+
+test_that("export_panel writes Parquet that reads back unchanged", {
+  skip_if_not_installed("arrow")
+  p <- rps_only()
+  dir <- withr::local_tempdir()
+  f <- file.path(dir, "panel.parquet")
+  export_panel(p, f)
+  back <- as.data.frame(arrow::read_parquet(f))
+  expect_equal(back, as_pdata(p, "data.frame"), ignore_attr = TRUE)
+  expect_true(file.exists(file.path(dir, "panel_codebook.csv")))
+})
