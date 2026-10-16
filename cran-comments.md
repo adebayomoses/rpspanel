@@ -8,13 +8,15 @@ This is a new submission.
 
 * This is a new release.
 
+The local check also reported messages about tools missing on the local
+machine (qpdf, HTML Tidy); these are not package issues.
+
 ## Test environments
 
 * Local: Windows 10, R 4.5.1 (`R CMD check --as-cran`, vignettes and PDF
   manual built)
 * GitHub Actions: Windows (release), macOS (release), Ubuntu (devel, release,
-  oldrel-1)
-* win-builder: R-devel (to be run before submission)
+  oldrel-1); all passed
 
 ## Web services and API keys
 

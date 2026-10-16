@@ -51,7 +51,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Moses Adebayo \email{afrirates@gmail.com} [copyright holder]
+\strong{Maintainer}: Moses Adebayo \email{adebayomoses2021@gmail.com} [copyright holder]
 
 }
 \keyword{internal}

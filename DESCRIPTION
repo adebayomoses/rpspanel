@@ -3,7 +3,7 @@ Type: Package
 Title: US State Energy-Economy Panels with Renewable Portfolio Standards
 Version: 0.1.0
 Authors@R:
-    person("Moses", "Adebayo", , "afrirates@gmail.com", role = c("aut", "cre", "cph"))
+    person("Moses", "Adebayo", , "adebayomoses2021@gmail.com", role = c("aut", "cre", "cph"))
 Description: Builds a documented, reproducible state-by-year panel for the 50
     US states and the District of Columbia that combines energy consumption,
     prices and production from the US Energy Information Administration (EIA)
