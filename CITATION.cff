@@ -2,6 +2,8 @@ cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
 title: "rpspanel: US State Energy-Economy Panels with Renewable Portfolio Standards"
 version: 0.1.0
+doi: 10.5281/zenodo.23480612
+date-released: 2026-10-19
 license: MIT
 type: software
 authors:
@@ -9,6 +11,13 @@ authors:
     given-names: Moses
     email: adebayomoses2021@gmail.com
 repository-code: "https://github.com/adebayomoses/rpspanel"
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.23480612
+    description: "All versions (concept DOI)"
+  - type: doi
+    value: 10.5281/zenodo.23480613
+    description: "Version 0.1.0"
 keywords:
   - R
   - energy economics
