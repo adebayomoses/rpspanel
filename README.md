@@ -8,6 +8,8 @@
 [![R-CMD-check](https://github.com/adebayomoses/rpspanel/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/adebayomoses/rpspanel/actions/workflows/R-CMD-check.yaml)
 
 [![r-universe](https://adebayomoses.r-universe.dev/badges/rpspanel)](https://adebayomoses.r-universe.dev/rpspanel)
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23480612.svg)](https://doi.org/10.5281/zenodo.23480612)
 <!-- badges: end -->
 
 **rpspanel** gives researchers a documented, reproducible US
