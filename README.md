@@ -6,6 +6,8 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/adebayomoses/rpspanel/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/adebayomoses/rpspanel/actions/workflows/R-CMD-check.yaml)
+
+[![r-universe](https://adebayomoses.r-universe.dev/badges/rpspanel)](https://adebayomoses.r-universe.dev/rpspanel)
 <!-- badges: end -->
 
 **rpspanel** gives researchers a documented, reproducible US
