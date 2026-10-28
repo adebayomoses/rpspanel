@@ -144,7 +144,7 @@ to empty the cache.
 ``` r
 
 rps_cache_dir()
-#> [1] "/tmp/RtmpR4LtxD/rpspanel-vignette"
+#> [1] "/tmp/Rtmpbvq9jc/rpspanel-vignette"
 ```
 
 ## RPS measures without API keys
