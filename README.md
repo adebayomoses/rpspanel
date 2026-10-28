@@ -6,11 +6,8 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/adebayomoses/rpspanel/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/adebayomoses/rpspanel/actions/workflows/R-CMD-check.yaml)
-
 [![r-universe](https://adebayomoses.r-universe.dev/badges/rpspanel)](https://adebayomoses.r-universe.dev/rpspanel)
-
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23480612.svg)](https://doi.org/10.5281/zenodo.23480612)
-
 [![CRAN status](https://www.r-pkg.org/badges/version/rpspanel)](https://cran.r-project.org/package=rpspanel)
 [![CRAN downloads](https://cranlogs.r-pkg.org/badges/grand-total/rpspanel)](https://cran.r-project.org/package=rpspanel)
 <!-- badges: end -->
