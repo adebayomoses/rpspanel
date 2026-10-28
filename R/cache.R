@@ -19,7 +19,8 @@ NULL
 #' @rdname cache
 #' @export
 rps_cache_dir <- function() {
-  getOption("rpspanel.cache_dir", tools::R_user_dir("rpspanel", which = "cache"))
+  getOption("rpspanel.cache_dir",
+            tools::R_user_dir("rpspanel", which = "cache"))
 }
 
 #' @rdname cache
@@ -56,7 +57,7 @@ rps_cache_clear <- function() {
 cache_key <- function(...) {
   s <- paste(..., sep = "|", collapse = "|")
   f <- tempfile()
-  on.exit(unlink(f))
+  on.exit(unlink(f), add = TRUE)
   writeLines(s, f, useBytes = TRUE)
   unname(tools::md5sum(f))
 }

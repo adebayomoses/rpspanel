@@ -24,14 +24,18 @@ fetch_census <- function(years, variable = "B01003_001E", states = NULL,
                          api_key = NULL, cache = TRUE, refresh = FALSE) {
   years <- as_years(years)
   states <- resolve_states(states)
-  get_key <- function() get_api_key(api_key, "CENSUS_API_KEY", "Census",
-                                    "https://api.census.gov/data/key_signup.html")
+  get_key <- function() {
+    get_api_key(api_key, "CENSUS_API_KEY", "Census",
+                "https://api.census.gov/data/key_signup.html")
+  }
   if (any(years == 2020L)) {
     cli::cli_inform("Skipping 2020: no standard ACS 1-year release.")
     years <- setdiff(years, 2020L)
   }
   if (any(years < 2005L)) {
-    cli::cli_inform("Skipping years before 2005: ACS 1-year data start in 2005.")
+    cli::cli_inform(
+      "Skipping years before 2005: ACS 1-year data start in 2005."
+    )
     years <- years[years >= 2005L]
   }
   pieces <- lapply(years, function(y) {

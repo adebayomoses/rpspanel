@@ -1,6 +1,7 @@
 test_that("harmonise_states maps names, codes and FIPS", {
   expect_equal(
-    harmonise_states(c("California", "tx", "06", 36, "11000", "Alaska *", " new york ")),
+    harmonise_states(c("California", "tx", "06", 36, "11000", "Alaska *",
+                       " new york ")),
     c("CA", "TX", "CA", "NY", "DC", "AK", "NY")
   )
   expect_equal(harmonise_states(c("CA", "DC"), to = "fips"), c("06", "11"))
@@ -9,7 +10,8 @@ test_that("harmonise_states maps names, codes and FIPS", {
 })
 
 test_that("unmatched identifiers become NA with a warning", {
-  expect_warning(out <- harmonise_states(c("CA", "US", "Puerto Rico")), "Could not match 2")
+  expect_warning(out <- harmonise_states(c("CA", "US", "Puerto Rico")),
+                 "Could not match 2")
   expect_equal(out, c("CA", NA, NA))
   expect_equal(harmonise_states(NA), NA_character_)
   expect_silent(harmonise_states("US", warn = FALSE))

@@ -88,7 +88,11 @@ fetch_eia <- function(dataset = c("seds", "co2", "generation", "retail_sales"),
 }
 
 eia_query <- function(spec, series, states, years, offset = 0, length = 5000) {
-  data_cols <- if (is.null(spec$series_facet)) intersect(spec$data, series) else spec$data
+  data_cols <- if (is.null(spec$series_facet)) {
+    intersect(spec$data, series)
+  } else {
+    spec$data
+  }
   q <- list(frequency = "annual")
   q[sprintf("data[%d]", seq_along(data_cols) - 1L)] <- as.list(data_cols)
   q[[sprintf("facets[%s][]", spec$state_facet)]] <- states
@@ -108,8 +112,9 @@ eia_query <- function(spec, series, states, years, offset = 0, length = 5000) {
 }
 
 eia_request <- function(spec, series, states, years, api_key, offset = 0) {
-  q <- c(list(api_key = api_key), eia_query(spec, series, states, years, offset))
-  build_request(paste0(eia_base_url, "/", spec$route, "/data/"), q)
+  q <- c(list(api_key = api_key),
+         eia_query(spec, series, states, years, offset))
+  build_request(sprintf("%s/%s/data/", eia_base_url, spec$route), q)
 }
 
 eia_download <- function(spec, series, states, years, api_key) {
@@ -162,12 +167,17 @@ eia_tidy <- function(raw, spec, series, states) {
     out <- do.call(rbind, pieces)
   } else {
     col <- spec$data[1]
-    unit_col <- intersect(c("unit", paste0(col, "-units"), "value-units"), names(raw))
+    unit_col <- intersect(c("unit", paste0(col, "-units"), "value-units"),
+                          names(raw))
     out <- data.frame(
       state = state, year = year,
       series = as.character(raw[[spec$series_facet]]),
       value = parse_num(raw[[col]]),
-      unit = if (length(unit_col)) as.character(raw[[unit_col[1]]]) else NA_character_,
+      unit = if (length(unit_col)) {
+        as.character(raw[[unit_col[1]]])
+      } else {
+        NA_character_
+      },
       stringsAsFactors = FALSE
     )
   }

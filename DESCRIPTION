@@ -1,9 +1,10 @@
 Package: rpspanel
 Type: Package
 Title: US State Energy-Economy Panels with Renewable Portfolio Standards
-Version: 0.1.0
+Version: 0.1.0.9000
 Authors@R:
-    person("Moses", "Adebayo", , "adebayomoses2021@gmail.com", role = c("aut", "cre", "cph"))
+    person("Moses", "Adebayo", , "adebayomoses2021@gmail.com", role = c("aut", "cre", "cph"),
+           comment = c(ORCID = "0009-0000-0768-0801"))
 Description: Builds a documented, reproducible state-by-year panel for the 50
     US states and the District of Columbia that combines energy consumption,
     prices and production from the US Energy Information Administration (EIA)
@@ -18,7 +19,8 @@ Description: Builds a documented, reproducible state-by-year panel for the 50
     <doi:10.1016/j.enpol.2009.10.067>, plus design-flexibility indicators).
     Output works directly with the 'plm', 'fixest' and 'csdm' packages.
 License: MIT + file LICENSE
-URL: https://github.com/adebayomoses/rpspanel
+URL: https://github.com/adebayomoses/rpspanel,
+    https://adebayomoses.github.io/rpspanel/
 BugReports: https://github.com/adebayomoses/rpspanel/issues
 Depends:
     R (>= 4.1.0)
@@ -40,6 +42,6 @@ Suggests:
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Encoding: UTF-8
-Language: en-US
+Language: en-GB
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
+Config/roxygen2/version: 8.1.1

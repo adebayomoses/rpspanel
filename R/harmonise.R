@@ -23,13 +23,15 @@
 deflate <- function(x, price_index, years = NULL, base_year = NULL,
                     index_years = years, index_values = price_index) {
   if (length(price_index) != length(x) && length(price_index) != 1L) {
-    cli::cli_abort("{.arg price_index} must have length 1 or the length of {.arg x}.")
+    cli::cli_abort(paste0("{.arg price_index} must have length 1 or the ",
+                          "length of {.arg x}."))
   }
   if (is.null(base_year)) {
     return(x * 100 / price_index)
   }
   if (is.null(index_years)) {
-    cli::cli_abort("Supply {.arg years} (or {.arg index_years}) together with {.arg base_year}.")
+    cli::cli_abort(paste0("Supply {.arg years} (or {.arg index_years}) ",
+                          "together with {.arg base_year}."))
   }
   base <- mean(index_values[index_years == base_year], na.rm = TRUE)
   if (is.nan(base)) {
@@ -41,7 +43,8 @@ deflate <- function(x, price_index, years = NULL, base_year = NULL,
 unit_table <- data.frame(
   unit = c(
     # energy, in Btu
-    "btu", "thousand btu", "million btu", "mmbtu", "billion btu", "trillion btu",
+    "btu", "thousand btu", "million btu", "mmbtu", "billion btu",
+    "trillion btu",
     "quadrillion btu", "quad", "kwh", "mwh", "gwh", "twh", "thousand mwh",
     "million kwh", "gj", "tj", "pj",
     # mass, in metric tons
@@ -86,7 +89,8 @@ convert_units <- function(x, from, to) {
   f <- lookup_unit(from)
   t <- lookup_unit(to)
   if (f$dimension != t$dimension) {
-    cli::cli_abort("Cannot convert {f$dimension} ({.val {from}}) to {t$dimension} ({.val {to}}).")
+    cli::cli_abort(paste0("Cannot convert {f$dimension} ({.val {from}}) to ",
+                          "{t$dimension} ({.val {to}})."))
   }
   x * f$factor / t$factor
 }
@@ -102,7 +106,9 @@ lookup_unit <- function(u) {
   key <- sub("s$", "", key) # plural forms
   i <- match(key, sub("s$", "", unit_table$unit))
   if (is.na(i)) {
-    cli::cli_abort("Unknown unit {.val {u}}; see {.fn convert_units_available}.")
+    cli::cli_abort(
+      "Unknown unit {.val {u}}; see {.fn convert_units_available}."
+    )
   }
   unit_table[i, ]
 }

@@ -46,12 +46,18 @@ file as \code{EIA_API_KEY} and \code{BEA_API_KEY}, plus \code{CENSUS_API_KEY} if
 Useful links:
 \itemize{
   \item \url{https://github.com/adebayomoses/rpspanel}
+  \item \url{https://adebayomoses.github.io/rpspanel/}
   \item Report bugs at \url{https://github.com/adebayomoses/rpspanel/issues}
 }
 
 }
 \author{
-\strong{Maintainer}: Moses Adebayo \email{adebayomoses2021@gmail.com} [copyright holder]
+\strong{Maintainer}: Moses Adebayo \email{adebayomoses2021@gmail.com} (\href{https://orcid.org/0009-0000-0768-0801}{ORCID}) [copyright holder]
+
+Authors:
+\itemize{
+  \item Moses Adebayo \email{adebayomoses2021@gmail.com} (\href{https://orcid.org/0009-0000-0768-0801}{ORCID}) [copyright holder]
+}
 
 }
 \keyword{internal}

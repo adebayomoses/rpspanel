@@ -44,7 +44,8 @@ fetch_bea <- function(table, line_code, dataset = c("Regional", "NIPA"),
                                     "https://apps.bea.gov/API/signup/")
 
   key <- cache_key("bea", dataset, table, line_code)
-  out <- with_cache(key, paste0("bea_", tolower(dataset)), cache = cache, refresh = refresh,
+  out <- with_cache(key, paste0("bea_", tolower(dataset)),
+                    cache = cache, refresh = refresh,
     fetch = function() {
       req <- bea_request(table, line_code, dataset, get_key())
       body <- perform_json(req,
@@ -77,7 +78,8 @@ bea_tidy <- function(body, table, line_code, dataset) {
   res <- body$BEAAPI$Results
   err <- body$BEAAPI$Error %||% res$Error
   if (!is.null(err)) {
-    msg <- err$APIErrorDescription %||% err$ErrorDetail$Description %||% "unknown error"
+    msg <- err$APIErrorDescription %||% err$ErrorDetail$Description %||%
+      "unknown error"
     cli::cli_abort(c("BEA API returned an error.", x = "{msg}"),
                    class = "rpspanel_http_error")
   }
@@ -86,18 +88,22 @@ bea_tidy <- function(body, table, line_code, dataset) {
     return(empty_long())
   }
   if (dataset == "NIPA") {
-    d <- d[as.character(d$LineNumber) == as.character(line_code), , drop = FALSE]
+    keep <- as.character(d$LineNumber) == as.character(line_code)
+    d <- d[keep, , drop = FALSE]
     state <- rep(NA_character_, nrow(d))
   } else {
     state <- harmonise_states(d$GeoFips, warn = FALSE)
   }
   unit <- as.character(d$CL_UNIT %||% NA_character_)
   mult <- parse_num(d$UNIT_MULT %||% NA)
-  scale_lab <- c("0" = "", "3" = "thousands of ", "6" = "millions of ", "9" = "billions of ")
+  scale_lab <- c("0" = "", "3" = "thousands of ", "6" = "millions of ",
+                 "9" = "billions of ")
   prefix <- unname(scale_lab[as.character(mult)])
   prefix[is.na(prefix)] <- ""
   # Regional unit labels usually already name the scale ("Millions of dollars")
-  prefix[grepl("^(thousands|millions|billions) of", unit, ignore.case = TRUE)] <- ""
+  has_scale <- grepl("^(thousands|millions|billions) of", unit,
+                     ignore.case = TRUE)
+  prefix[has_scale] <- ""
   out <- data.frame(
     state = state,
     year = as.integer(substr(as.character(d$TimePeriod), 1, 4)),

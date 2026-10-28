@@ -78,7 +78,8 @@ harmonise_states <- function(x, to = c("abbr", "name", "fips"), warn = TRUE) {
   # BEA GeoFips look like "06000"
   fips_key[numeric_key & nchar(key) == 5 & endsWith(key, "000")] <-
     substr(key[numeric_key & nchar(key) == 5 & endsWith(key, "000")], 1, 2)
-  fips_key[numeric_key] <- sprintf("%02d", suppressWarnings(as.integer(fips_key[numeric_key])))
+  fips_num <- suppressWarnings(as.integer(fips_key[numeric_key]))
+  fips_key[numeric_key] <- sprintf("%02d", fips_num)
   by_fips <- ifelse(numeric_key, match(fips_key, state_table$fips), NA_integer_)
   idx[is.na(idx)] <- by_fips[is.na(idx)]
 

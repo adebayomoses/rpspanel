@@ -1,6 +1,7 @@
 test_that("EIA requests carry facets, years and data columns", {
-  spec <- rpspanel:::eia_specs$seds
-  req <- rpspanel:::eia_request(spec, c("TETCB", "TETCD"), c("CA", "TX"), 2010:2020, "SECRET")
+  spec <- eia_specs$seds
+  req <- eia_request(spec, c("TETCB", "TETCD"), c("CA", "TX"), 2010:2020,
+                     "SECRET")
   url <- utils::URLdecode(req$url)
   expect_match(url, "https://api.eia.gov/v2/seds/data/", fixed = TRUE)
   expect_match(url, "facets[seriesId][]=TETCB", fixed = TRUE)
@@ -12,13 +13,15 @@ test_that("EIA requests carry facets, years and data columns", {
 
 test_that("fetch_eia tidies responses", {
   local_mocked_bindings(perform_json = fake_perform)
-  x <- fetch_eia("seds", "TETCB", states = c("CA", "TX"), years = 2019:2020, cache = FALSE)
-  expect_equal(names(x), c("state", "year", "series", "value", "unit"))
+  x <- fetch_eia("seds", "TETCB", states = c("CA", "TX"), years = 2019:2020,
+                 cache = FALSE)
+  expect_named(x, c("state", "year", "series", "value", "unit"))
   expect_equal(nrow(x), 4)
   expect_equal(x$value[x$state == "CA" & x$year == 2019], 7800000)
   expect_false(is.null(attr(x, "rps_retrieved")))
 
-  r <- fetch_eia("retail_sales", c("sales", "price"), states = "CA", cache = FALSE)
+  r <- fetch_eia("retail_sales", c("sales", "price"), states = "CA",
+                 cache = FALSE)
   expect_setequal(unique(r$series), c("sales", "price"))
   expect_equal(r$unit[r$series == "price"][1], "cents per kilowatt-hour")
 
@@ -27,31 +30,35 @@ test_that("fetch_eia tidies responses", {
 })
 
 test_that("fetch_eia uses the cache and never stores the key", {
-  calls <- 0
+  counter <- new.env()
+  counter$calls <- 0
   local_mocked_bindings(perform_json = function(req, what) {
-    calls <<- calls + 1
+    counter$calls <- counter$calls + 1
     fake_perform(req, what)
   })
   withr::local_options(rpspanel.cache_dir = withr::local_tempdir())
   fetch_eia("seds", "TETCB", states = "CA", years = 2019:2020)
   fetch_eia("seds", "TETCB", states = "CA", years = 2019:2020)
-  expect_equal(calls, 1)
+  expect_identical(counter$calls, 1)
   expect_equal(nrow(rps_cache_list()), 1)
   cached <- readRDS(list.files(rps_cache_dir(), full.names = TRUE)[1])
-  expect_false(any(grepl("test-eia-key", unlist(attributes(cached)), fixed = TRUE)))
+  expect_false(any(grepl("test-eia-key", unlist(attributes(cached)),
+                         fixed = TRUE)))
   fetch_eia("seds", "TETCB", states = "CA", years = 2019:2020, refresh = TRUE)
-  expect_equal(calls, 2)
+  expect_identical(counter$calls, 2)
   expect_message(rps_cache_clear(), "Removed 1")
 })
 
 test_that("missing keys and network failures give classed errors", {
   withr::local_envvar(EIA_API_KEY = "")
-  expect_error(fetch_eia("seds", "TETCB", cache = FALSE), class = "rpspanel_no_key")
+  expect_error(fetch_eia("seds", "TETCB", cache = FALSE),
+               class = "rpspanel_no_key")
   withr::local_envvar(EIA_API_KEY = "x")
   local_mocked_bindings(perform_json = function(req, what) {
     cli::cli_abort("offline", class = "rpspanel_http_error")
   })
-  expect_error(fetch_eia("seds", "TETCB", cache = FALSE), class = "rpspanel_http_error")
+  expect_error(fetch_eia("seds", "TETCB", cache = FALSE),
+               class = "rpspanel_http_error")
 })
 
 test_that("fetch_bea parses numbers, footnotes and NIPA lines", {
@@ -65,15 +72,16 @@ test_that("fetch_bea parses numbers, footnotes and NIPA lines", {
 })
 
 test_that("BEA errors are reported", {
-  body <- list(BEAAPI = list(Results = list(Error = list(APIErrorDescription = "bad key"))))
-  expect_error(rpspanel:::bea_tidy(body, "X", 1, "Regional"), "bad key")
+  err <- list(APIErrorDescription = "bad key")
+  body <- list(BEAAPI = list(Results = list(Error = err)))
+  expect_error(bea_tidy(body, "X", 1, "Regional"), "bad key")
 })
 
 test_that("census responses are parsed", {
   body <- rbind(c("NAME", "B01003_001E", "state"),
                 c("California", "39538223", "06"),
                 c("Puerto Rico", "3285874", "72"))
-  out <- rpspanel:::census_tidy(body, 2019, "B01003_001E")
+  out <- census_tidy(body, 2019, "B01003_001E")
   expect_equal(out$state, c("CA", NA))
   expect_equal(out$value[1], 39538223)
 })
@@ -89,14 +97,15 @@ test_that("HTML error pages become classed errors, not parse failures", {
       httr2::response(
         status_code = 200,
         url = "https://api.census.gov/data/missing_key.html",
-        headers = list(`Content-Type` = "text/html", `X-DataWebAPI-KeyError` = "1"),
+        headers = list(`Content-Type` = "text/html",
+                       `X-DataWebAPI-KeyError` = "1"),
         body = charToRaw("<html>Missing key</html>")
       )
     },
     .package = "httr2"
   )
-  req <- rpspanel:::census_request(2019, "B01003_001E", "")
-  expect_error(rpspanel:::perform_json(req, "Census ACS 2019"),
+  req <- census_request(2019, "B01003_001E", "")
+  expect_error(perform_json(req, "Census ACS 2019"),
                "missing or invalid", class = "rpspanel_http_error")
 })
 
@@ -106,10 +115,12 @@ test_that("cached data can be read without an API key", {
   first <- fetch_eia("seds", "TETCB", states = "CA", years = 2019:2020)
   g1 <- fetch_bea("SAGDP9", 1, states = "CA")
   withr::local_envvar(EIA_API_KEY = "", BEA_API_KEY = "")
-  expect_equal(fetch_eia("seds", "TETCB", states = "CA", years = 2019:2020), first)
+  expect_equal(fetch_eia("seds", "TETCB", states = "CA", years = 2019:2020),
+               first)
   expect_equal(fetch_bea("SAGDP9", 1, states = "CA"), g1)
   # a new download still asks for the key
-  expect_error(fetch_eia("seds", "TETCD", states = "CA"), class = "rpspanel_no_key")
+  expect_error(fetch_eia("seds", "TETCD", states = "CA"),
+               class = "rpspanel_no_key")
 })
 
 test_that("fetch_bea asks for a key before downloading", {

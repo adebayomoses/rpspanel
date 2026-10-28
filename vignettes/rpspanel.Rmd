@@ -8,7 +8,8 @@ vignette: >
 ---
 
 ```{r, include = FALSE}
-has_keys <- nzchar(Sys.getenv("EIA_API_KEY")) && nzchar(Sys.getenv("BEA_API_KEY"))
+has_keys <- nzchar(Sys.getenv("EIA_API_KEY")) &&
+  nzchar(Sys.getenv("BEA_API_KEY"))
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 options(rpspanel.cache_dir = file.path(tempdir(), "rpspanel-vignette"))
 ```
@@ -32,10 +33,8 @@ EIA and BEA data need free API keys:
 Put them in your `.Renviron` file (open it with
 `usethis::edit_r_environ()`), then restart R:
 
-```
-EIA_API_KEY=your-eia-key
-BEA_API_KEY=your-bea-key
-```
+    EIA_API_KEY=your-eia-key
+    BEA_API_KEY=your-bea-key
 
 ## One call, one panel
 
@@ -103,7 +102,8 @@ The panel works directly with `plm`, `fixest` and `csdm`:
 
 ```{r estimate, eval = has_keys && requireNamespace("fixest", quietly = TRUE)}
 library(fixest)
-p <- build_panel(years = 2001:2022, vars = c("co2_pc", "rps_nominal", "gdp_real_pc"))
+p <- build_panel(years = 2001:2022,
+                 vars = c("co2_pc", "rps_nominal", "gdp_real_pc"))
 feols(log(co2_pc) ~ rps_nominal + log(gdp_real_pc) | state + year,
       data = as_pdata(p, "fixest"), cluster = ~state)
 ```

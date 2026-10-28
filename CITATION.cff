@@ -10,6 +10,7 @@ authors:
   - family-names: Adebayo
     given-names: Moses
     email: adebayomoses2021@gmail.com
+    orcid: "https://orcid.org/0009-0000-0768-0801"
 repository-code: "https://github.com/adebayomoses/rpspanel"
 identifiers:
   - type: doi

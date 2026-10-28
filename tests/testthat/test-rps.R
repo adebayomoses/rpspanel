@@ -10,17 +10,19 @@ test_that("invalid codings are rejected", {
   r <- toy_rules()
   bad <- r$targets
   bad$target[1] <- 1.5
-  expect_error(rpspanel:::new_rps_rules(r$rules, bad), "between 0 and 1")
+  expect_error(new_rps_rules(r$rules, bad), "between 0 and 1")
   bad_rules <- r$rules
   bad_rules$first_compliance_year[1] <- 2000
-  expect_error(rpspanel:::new_rps_rules(bad_rules, r$targets), "before")
+  expect_error(new_rps_rules(bad_rules, r$targets), "before")
 })
 
 test_that("adoption and nominal requirements have known values", {
-  s <- rps_stringency(2004:2017, states = c("CA", "TX", "FL", "OH"), rules = toy_rules())
+  s <- rps_stringency(2004:2017, states = c("CA", "TX", "FL", "OH"),
+                      rules = toy_rules())
   ca <- s[s$state == "CA", ]
   expect_equal(ca$rps_adoption, as.integer(2004:2017 >= 2005))
-  # 0 before first compliance (2007), linear 0.04 -> 0.20 over 2007-2015, then flat
+  # 0 before first compliance (2007), linear 0.04 -> 0.20 over 2007-2015,
+  # then flat
   expect_equal(ca$rps_nominal[ca$year == 2006], 0)
   expect_equal(ca$rps_nominal[ca$year == 2007], 0.04)
   expect_equal(ca$rps_nominal[ca$year == 2011], 0.12)
@@ -51,22 +53,24 @@ test_that("step interpolation holds the last legal target", {
 })
 
 test_that("coverage-adjusted and incremental measures follow their formulas", {
-  s <- rps_stringency(2006:2015, states = "CA", rules = toy_rules(coverage = 0.8, baseline = 0.05))
+  s <- rps_stringency(2006:2015, states = "CA",
+                      rules = toy_rules(coverage = 0.8, baseline = 0.05))
   expect_equal(s$rps_coverage_adj, s$rps_nominal * 0.8)
   pos <- s$rps_nominal > 0
   expect_equal(s$rps_incremental[pos], s$rps_nominal[pos] * 0.8 - 0.05)
   expect_equal(s$rps_incremental[!pos], 0)
   # floor_zero and baseline override
   s2 <- rps_stringency(2007, states = "CA", rules = toy_rules(),
-                       baseline = data.frame(state = "California", baseline_share = 0.5),
+                       baseline = data.frame(state = "California",
+                                             baseline_share = 0.5),
                        floor_zero = TRUE)
   expect_equal(s2$rps_baseline_share, 0.5)
   expect_equal(s2$rps_incremental, 0)
 })
 
 test_that("flexibility indicators are zero when no RPS is in force", {
-  s <- rps_stringency(c(2004, 2010), states = c("CA", "TX"), rules = toy_rules(),
-                      method = "flexibility")
+  s <- rps_stringency(c(2004, 2010), states = c("CA", "TX"),
+                      rules = toy_rules(), method = "flexibility")
   expect_equal(s$rps_oos_rec, c(0, 1, 0, 0))
   expect_equal(s$rps_carveout, c(0, 0, 0, 1))
   expect_equal(s$rps_acp, c(0, 1, 0, 0))
@@ -95,16 +99,20 @@ test_that("capacity standards convert MW to a share of covered sales", {
   expect_equal(s2$rps_nominal, s$rps_nominal * 0.4 / 0.33)
   # repealed in 2025: no requirement afterwards
   s3 <- rps_stringency(2026, "TX", method = "nominal", rules = r,
-                       sales = data.frame(state = "TX", year = 2026, sales_gwh = 1))
+                       sales = data.frame(state = "TX", year = 2026,
+                                          sales_gwh = 1))
   expect_equal(s3$rps_nominal, 0)
-  expect_error(rps_stringency(2015, "TX", sales = sales, capacity_factor = 2), "between 0 and 1")
-  expect_error(rps_stringency(2015, "TX", sales = data.frame(state = "TX")), "sales_gwh")
+  expect_error(rps_stringency(2015, "TX", sales = sales, capacity_factor = 2),
+               "between 0 and 1")
+  expect_error(rps_stringency(2015, "TX", sales = data.frame(state = "TX")),
+               "sales_gwh")
 })
 
 test_that("a single target in force from enactment is held constant (Iowa)", {
   r <- rps_rules("IA")
   sales <- data.frame(state = "IA", year = c(1982, 2010), sales_gwh = 45000)
-  s <- rps_stringency(c(1982, 2010), "IA", method = "nominal", rules = r, sales = sales)
+  s <- rps_stringency(c(1982, 2010), "IA", method = "nominal", rules = r,
+                      sales = sales)
   cov <- r$rules$coverage_share
   expect_equal(s$rps_nominal, c(0, 105 * 0.33 * 8.76 / (45000 * cov)))
   st <- rps_stringency(2010, "IA", method = "nominal", rules = r, sales = sales,
@@ -114,10 +122,14 @@ test_that("a single target in force from enactment is held constant (Iowa)", {
 
 test_that("baseline_includes_hydro is optional and set for NY", {
   r <- rps_rules()
-  expect_equal(r$rules$state[r$rules$baseline_includes_hydro == 1], "NY")
-  old <- toy_rules()$rules
-  expect_false("baseline_includes_hydro" %in% names(old[setdiff(names(old), "baseline_includes_hydro")]))
-  expect_true(all(toy_rules()$rules$baseline_includes_hydro == 0))
+  expect_identical(r$rules$state[r$rules$baseline_includes_hydro == 1], "NY")
+  # rules files written before the column existed still load, with default 0
+  toy <- toy_rules()
+  old <- toy$rules
+  old$baseline_includes_hydro <- NULL
+  expect_false("baseline_includes_hydro" %in% names(old))
+  loaded <- new_rps_rules(old, toy$targets)
+  expect_identical(loaded$rules$baseline_includes_hydro, c(0L, 0L, 0L))
 })
 
 test_that("fetch_rps returns bundled coding or reads files", {

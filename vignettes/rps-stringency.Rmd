@@ -8,8 +8,10 @@ vignette: >
 ---
 
 ```{r, include = FALSE}
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.width = 7, fig.height = 4)
-has_keys <- nzchar(Sys.getenv("EIA_API_KEY")) && nzchar(Sys.getenv("BEA_API_KEY"))
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.width = 7,
+                      fig.height = 4)
+has_keys <- nzchar(Sys.getenv("EIA_API_KEY")) &&
+  nzchar(Sys.getenv("BEA_API_KEY"))
 ```
 
 ```{r setup}
@@ -65,7 +67,8 @@ Legal schedules often step (for example Washington: 3% from 2012, 9% from
 
 ```{r interp}
 lin  <- rps_stringency(2010:2022, "WA", method = "nominal")
-step <- rps_stringency(2010:2022, "WA", method = "nominal", interpolation = "step")
+step <- rps_stringency(2010:2022, "WA", method = "nominal",
+                       interpolation = "step")
 plot(lin$year, lin$rps_nominal, type = "l", ylab = "Required share", xlab = "",
      main = "Washington RPS")
 lines(step$year, step$rps_nominal, type = "s", lty = 2)
@@ -75,7 +78,8 @@ legend("topleft", c("linear", "step"), lty = 1:2, bty = "n")
 ### Nominal requirements across states
 
 ```{r nominal-plot}
-cols <- c(CA = "#1b9e77", OR = "#d95f02", WA = "#7570b3", NC = "#e7298a", MA = "#66a61e")
+cols <- c(CA = "#1b9e77", OR = "#d95f02", WA = "#7570b3", NC = "#e7298a",
+          MA = "#66a61e")
 plot(NA, xlim = c(2000, 2030), ylim = c(0, 0.65), xlab = "",
      ylab = "Nominal requirement (share of sales)")
 for (st in names(cols)) {
@@ -118,7 +122,8 @@ defaults to 0.33 (typical of wind) and can be changed. `build_panel()`
 supplies retail sales automatically; with `rps_stringency()` you pass them:
 
 ```{r capacity}
-tx_sales <- data.frame(state = "TX", year = c(2010, 2015), sales_gwh = c(358000, 380000))
+tx_sales <- data.frame(state = "TX", year = c(2010, 2015),
+                       sales_gwh = c(358000, 380000))
 rps_stringency(c(2010, 2015), "TX", method = "nominal", sales = tx_sales)
 rps_stringency(c(2010, 2015), "TX", method = "nominal", sales = tx_sales,
                capacity_factor = 0.4)
@@ -134,8 +139,9 @@ coding and controls differ from the bundled starter coding.
 ```{r yp, eval = FALSE}
 library(fixest)
 p <- build_panel(years = 2001:2022,
-                 vars = c("re_share_nonhydro", "rps_incremental", "rps_adoption",
-                          "gdp_real_pc", "elec_price_real"))
+                 vars = c("re_share_nonhydro", "rps_incremental",
+                          "rps_adoption", "gdp_real_pc",
+                          "elec_price_real"))
 feols(re_share_nonhydro ~ rps_incremental + log(gdp_real_pc) + elec_price_real |
         state + year,
       data = as_pdata(p, "fixest"), cluster = ~state)

@@ -1,0 +1,60 @@
+url: https://adebayomoses.github.io/rpspanel/
+
+template:
+  bootstrap: 5
+
+home:
+  title: "rpspanel: US state energy-economy panels with RPS measures"
+
+navbar:
+  structure:
+    left: [intro, reference, articles, news]
+    right: [search, github]
+
+reference:
+  - title: Build a panel
+    desc: >
+      One call returns a documented state-by-year panel.
+    contents:
+      - build_panel
+  - title: RPS stringency
+    desc: >
+      Coded Renewable Portfolio Standard rules and annual stringency measures.
+    contents:
+      - rps_rules
+      - rps_stringency
+      - fetch_rps
+  - title: Download data
+    desc: >
+      Fetch and cache data from the EIA, BEA and Census APIs.
+    contents:
+      - fetch_eia
+      - fetch_bea
+      - fetch_census
+      - cache
+  - title: Harmonise
+    desc: >
+      Align state identifiers, units and price bases across sources.
+    contents:
+      - harmonise_states
+      - us_states
+      - deflate
+      - convert_units
+  - title: Document and cite
+    contents:
+      - codebook
+      - cite_sources
+  - title: Estimate and export
+    contents:
+      - as_pdata
+      - export_panel
+
+articles:
+  - title: Get started
+    navbar: ~
+    contents:
+      - rpspanel
+  - title: Methods
+    navbar: Methods
+    contents:
+      - rps-stringency

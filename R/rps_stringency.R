@@ -82,8 +82,9 @@ rps_method_cols <- list(
 #' rps_stringency(2012:2020, states = "WA", method = "nominal",
 #'                interpolation = "step")
 rps_stringency <- function(years, states = NULL,
-                           method = c("adoption", "nominal", "coverage_adjusted",
-                                      "incremental", "flexibility"),
+                           method = c("adoption", "nominal",
+                                      "coverage_adjusted", "incremental",
+                                      "flexibility"),
                            rules = rps_rules(), baseline = NULL,
                            interpolation = c("linear", "step"),
                            adopt_from = c("enactment", "first_compliance"),
@@ -94,54 +95,99 @@ rps_stringency <- function(years, states = NULL,
   method <- match.arg(method, several.ok = TRUE)
   interpolation <- match.arg(interpolation)
   adopt_from <- match.arg(adopt_from)
-  if (!inherits(rules, "rps_rules")) {
-    cli::cli_abort("{.arg rules} must be an {.cls rps_rules} object; see {.fn rps_rules}.")
-  }
+  check_stringency_inputs(rules, capacity_factor, sales, baseline)
+  r <- override_baseline(rules$rules, baseline)
 
-  if (!is.numeric(capacity_factor) || length(capacity_factor) != 1 ||
-      capacity_factor <= 0 || capacity_factor > 1) {
-    cli::cli_abort("{.arg capacity_factor} must be a single number between 0 and 1.")
-  }
-  if (!is.null(sales) && !all(c("state", "year", "sales_gwh") %in% names(sales))) {
-    cli::cli_abort("{.arg sales} needs columns {.field state}, {.field year} and {.field sales_gwh}.")
-  }
-
-  r <- rules$rules
-  if (!is.null(baseline)) {
-    if (!all(c("state", "baseline_share") %in% names(baseline))) {
-      cli::cli_abort("{.arg baseline} needs columns {.field state} and {.field baseline_share}.")
-    }
-    b <- baseline$baseline_share[match(r$state, harmonise_states(baseline$state))]
-    r$baseline_re_share[!is.na(b)] <- b[!is.na(b)]
-  }
-
-  grid <- expand.grid(year = years, state = states, stringsAsFactors = FALSE)[c("state", "year")]
+  grid <- expand.grid(year = years, state = states,
+                      stringsAsFactors = FALSE)[c("state", "year")]
   rule <- r[match(grid$state, r$state), , drop = FALSE]
   coded <- !is.na(rule$state)
   has <- coded & rule$has_rps %in% 1L
 
-  start <- if (adopt_from == "enactment") rule$enacted_year else rule$first_compliance_year
+  start <- if (adopt_from == "enactment") {
+    rule$enacted_year
+  } else {
+    rule$first_compliance_year
+  }
   in_force <- has & grid$year >= start &
     (is.na(rule$repeal_year) | grid$year < rule$repeal_year)
   in_force[!coded] <- NA
 
-  nominal <- numeric(nrow(grid))
-  for (st in unique(grid$state[has])) {
-    rows <- which(grid$state == st)
-    rs <- r[r$state == st, ]
-    req <- required_share(grid$year[rows], rs, rules$targets[rules$targets$state == st, ],
-                          interpolation)
-    nominal[rows] <- if (rs$target_type == "share") {
-      req
-    } else {
-      capacity_to_share(req, st, grid$year[rows], rs$coverage_share, sales, capacity_factor)
-    }
-  }
+  nominal <- nominal_requirement(grid, r, rules$targets, has, interpolation,
+                                 sales, capacity_factor)
   nominal[has & !in_force] <- 0
   nominal[has & grid$year < rule$first_compliance_year] <- 0
   nominal[!coded] <- NA
 
-  out <- grid
+  out <- stringency_columns(grid, method, rule, has, in_force, nominal,
+                            floor_zero)
+  out <- out[order(out$state, out$year), , drop = FALSE]
+  rownames(out) <- NULL
+  attr(out, "rps_options") <- list(method = method,
+                                   interpolation = interpolation,
+                                   adopt_from = adopt_from,
+                                   floor_zero = floor_zero,
+                                   capacity_factor = capacity_factor)
+  out
+}
+
+check_stringency_inputs <- function(rules, capacity_factor, sales, baseline) {
+  if (!inherits(rules, "rps_rules")) {
+    cli::cli_abort(paste0("{.arg rules} must be an {.cls rps_rules} ",
+                          "object; see {.fn rps_rules}."))
+  }
+  if (!is.numeric(capacity_factor) || length(capacity_factor) != 1 ||
+      capacity_factor <= 0 || capacity_factor > 1) {
+    cli::cli_abort(
+      "{.arg capacity_factor} must be a single number between 0 and 1."
+    )
+  }
+  if (!is.null(sales) &&
+      !all(c("state", "year", "sales_gwh") %in% names(sales))) {
+    cli::cli_abort(paste0("{.arg sales} needs columns {.field state}, ",
+                          "{.field year} and {.field sales_gwh}."))
+  }
+  if (!is.null(baseline) &&
+      !all(c("state", "baseline_share") %in% names(baseline))) {
+    cli::cli_abort(paste0("{.arg baseline} needs columns {.field state} ",
+                          "and {.field baseline_share}."))
+  }
+  invisible(TRUE)
+}
+
+# Replace coded baselines with user-supplied ones where given.
+override_baseline <- function(r, baseline) {
+  if (is.null(baseline)) {
+    return(r)
+  }
+  b <- baseline$baseline_share[match(r$state,
+                                     harmonise_states(baseline$state))]
+  r$baseline_re_share[!is.na(b)] <- b[!is.na(b)]
+  r
+}
+
+# Required share of sales for every state-year with an RPS (0 elsewhere).
+nominal_requirement <- function(grid, r, targets, has, interpolation, sales,
+                                capacity_factor) {
+  nominal <- numeric(nrow(grid))
+  for (st in unique(grid$state[has])) {
+    rows <- which(grid$state == st)
+    rs <- r[r$state == st, ]
+    st_targets <- targets[targets$state == st, ]
+    req <- required_share(grid$year[rows], rs, st_targets, interpolation)
+    nominal[rows] <- if (rs$target_type == "share") {
+      req
+    } else {
+      capacity_to_share(req, st, grid$year[rows], rs$coverage_share, sales,
+                        capacity_factor)
+    }
+  }
+  nominal
+}
+
+# Add the output columns for each requested method.
+stringency_columns <- function(out, method, rule, has, in_force, nominal,
+                               floor_zero) {
   if ("adoption" %in% method) {
     out$rps_adoption <- as.integer(in_force)
   }
@@ -166,11 +212,6 @@ rps_stringency <- function(years, states = NULL,
     out$rps_carveout <- on * ifelse(has, rule$carveout, 0L)
     out$rps_acp <- on * ifelse(has, rule$acp, 0L)
   }
-  out <- out[order(out$state, out$year), , drop = FALSE]
-  rownames(out) <- NULL
-  attr(out, "rps_options") <- list(method = method, interpolation = interpolation,
-                                   adopt_from = adopt_from, floor_zero = floor_zero,
-                                   capacity_factor = capacity_factor)
   out
 }
 
@@ -201,7 +242,8 @@ required_share <- function(years, rule, targets, interpolation) {
 
 # Energy a MW target implies (GWh = MW * capacity factor * 8760 h / 1000) as a
 # share of the sales the standard covers.
-capacity_to_share <- function(mw, state, years, coverage, sales, capacity_factor) {
+capacity_to_share <- function(mw, state, years, coverage, sales,
+                              capacity_factor) {
   if (is.null(sales)) {
     return(rep(NA_real_, length(mw)))
   }

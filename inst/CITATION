@@ -1,0 +1,16 @@
+bibentry(
+  bibtype = "Manual",
+  title = paste("rpspanel: US State Energy-Economy Panels with Renewable",
+                "Portfolio Standards"),
+  author = person("Moses", "Adebayo",
+                  comment = c(ORCID = "0009-0000-0768-0801")),
+  year = "2026",
+  note = paste("R package version", meta$Version),
+  doi = "10.5281/zenodo.23480612",
+  url = "https://github.com/adebayomoses/rpspanel",
+  textVersion = paste0(
+    "Adebayo, M. (2026). rpspanel: US State Energy-Economy Panels with ",
+    "Renewable Portfolio Standards. R package version ", meta$Version, ". ",
+    "https://doi.org/10.5281/zenodo.23480612"
+  )
+)

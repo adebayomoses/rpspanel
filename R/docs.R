@@ -26,7 +26,8 @@ codebook <- function(x = NULL, group = NULL) {
     group <- match.arg(group, panel_groups, several.ok = TRUE)
     cb <- cb[cb$group %in% group, ]
   }
-  cb <- cb[c("variable", "group", "label", "unit", "source", "series", "transformation")]
+  cb <- cb[c("variable", "group", "label", "unit", "source", "series",
+             "transformation")]
   rownames(cb) <- NULL
   cb
 }
@@ -57,37 +58,64 @@ cite_sources <- function(x = NULL, format = c("text", "bibtex")) {
     src <- source_info[source_info$source %in% keys, ]
     src$retrieved <- NA_character_
   }
-  year_of <- function(r) if (is.na(r) || !grepl("^[0-9]{4}-", r)) format(Sys.Date(), "%Y") else substr(r, 1, 4)
   refs <- vapply(seq_len(nrow(src)), function(i) {
-    s <- src[i, ]
-    accessed <- if (is.na(s$retrieved)) {
-      ""
-    } else if (grepl("^[0-9]{4}-", s$retrieved)) {
-      paste0(" Retrieved ", s$retrieved, " UTC.")
-    } else {
-      paste0(" Coding shipped with rpspanel ", s$retrieved, ".")
-    }
-    if (format == "text") {
-      paste0(s$publisher, " (", year_of(s$retrieved), "). ", s$title, ". ",
-             if (!is.na(s$url)) s$url else "", ".", accessed)
-    } else {
-      paste0("@misc{", s$source, ",\n  author = {{", s$publisher, "}},\n  title = {",
-             s$title, "},\n  year = {", year_of(s$retrieved), "},\n",
-             if (!is.na(s$url)) paste0("  url = {", s$url, "},\n") else "",
-             if (nzchar(accessed)) paste0("  note = {", trimws(accessed), "},\n") else "",
-             "}")
-    }
+    source_reference(src[i, ], format)
   }, character(1))
-  pkg <- if (format == "text") {
-    paste0("Adebayo, M. (", format(Sys.Date(), "%Y"), "). rpspanel: US state ",
-           "energy-economy panels with renewable portfolio standards. R package version ",
-           utils::packageVersion("rpspanel"), ".")
+  structure(c(refs, package_reference(format)), class = "rps_citation")
+}
+
+# Year of a retrieval timestamp, or the current year when there is none.
+citation_year <- function(retrieved) {
+  if (is.na(retrieved) || !grepl("^[0-9]{4}-", retrieved)) {
+    format(Sys.Date(), "%Y")
   } else {
-    paste0("@Manual{rpspanel,\n  author = {Moses Adebayo},\n  title = {rpspanel: ",
-           "US State Energy-Economy Panels with Renewable Portfolio Standards},\n  note = {R package version ",
-           utils::packageVersion("rpspanel"), "},\n  year = {", format(Sys.Date(), "%Y"), "},\n}")
+    substr(retrieved, 1, 4)
   }
-  structure(c(refs, pkg), class = "rps_citation")
+}
+
+# One reference for a row of the sources table.
+source_reference <- function(s, format) {
+  accessed <- if (is.na(s$retrieved)) {
+    ""
+  } else if (grepl("^[0-9]{4}-", s$retrieved)) {
+    paste0(" Retrieved ", s$retrieved, " UTC.")
+  } else {
+    paste0(" Coding shipped with rpspanel ", s$retrieved, ".")
+  }
+  if (format == "text") {
+    # Angle brackets keep the closing full stop out of the URL
+    link <- if (!is.na(s$url)) paste0(" <", s$url, ">.") else ""
+    return(paste0(s$publisher, " (", citation_year(s$retrieved), "). ",
+                  s$title, ".", link, accessed))
+  }
+  url <- if (!is.na(s$url)) paste0("  url = {", s$url, "},\n") else ""
+  note <- if (nzchar(accessed)) {
+    paste0("  note = {", trimws(accessed), "},\n")
+  } else {
+    ""
+  }
+  paste0("@misc{", s$source, ",\n",
+         "  author = {{", s$publisher, "}},\n",
+         "  title = {", s$title, "},\n",
+         "  year = {", citation_year(s$retrieved), "},\n",
+         url, note, "}")
+}
+
+# The reference for the package itself.
+package_reference <- function(format) {
+  if (format == "text") {
+    return(paste0("Adebayo, M. (", format(Sys.Date(), "%Y"), "). rpspanel: ",
+                  "US state energy-economy panels with renewable portfolio ",
+                  "standards. R package version ",
+                  utils::packageVersion("rpspanel"), "."))
+  }
+  paste0("@Manual{rpspanel,\n",
+         "  author = {Moses Adebayo},\n",
+         "  title = {rpspanel: US State Energy-Economy Panels with ",
+         "Renewable Portfolio Standards},\n",
+         "  note = {R package version ",
+         utils::packageVersion("rpspanel"), "},\n",
+         "  year = {", format(Sys.Date(), "%Y"), "},\n}")
 }
 
 #' @export

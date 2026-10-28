@@ -1,3 +1,19 @@
+# rpspanel (development version)
+
+* Preparation for rOpenSci software peer review: added a contributing guide,
+  a code of conduct, a `CITATION` file with the Zenodo DOI, and a pkgdown
+  documentation website.
+* Internal refactoring for readability: `build_panel()` and
+  `rps_stringency()` are split into smaller helper functions, and code lines
+  are kept within 80 characters. Results are unchanged (checked against
+  version 0.1.0 on every state and year, and on the full live panel).
+* `cite_sources()` text citations now wrap URLs in angle brackets so the
+  closing full stop is not read as part of the link, and sources without a URL
+  no longer get a stray extra full stop.
+* Tests no longer use `:::`, and the test for rules files without the optional
+  `baseline_includes_hydro` column now checks that such files load with the
+  default value.
+
 # rpspanel 0.1.0
 
 * Initial version following the project plan.

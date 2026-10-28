@@ -8,8 +8,13 @@
 [![R-CMD-check](https://github.com/adebayomoses/rpspanel/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/adebayomoses/rpspanel/actions/workflows/R-CMD-check.yaml)
 [![r-universe](https://adebayomoses.r-universe.dev/badges/rpspanel)](https://adebayomoses.r-universe.dev/rpspanel)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23480612.svg)](https://doi.org/10.5281/zenodo.23480612)
-[![CRAN status](https://www.r-pkg.org/badges/version/rpspanel)](https://cran.r-project.org/package=rpspanel)
-[![CRAN downloads](https://cranlogs.r-pkg.org/badges/grand-total/rpspanel)](https://cran.r-project.org/package=rpspanel)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/rpspanel)](https://CRAN.R-project.org/package=rpspanel)
+[![CRAN
+downloads](https://cranlogs.r-pkg.org/badges/grand-total/rpspanel)](https://CRAN.R-project.org/package=rpspanel)
+[![Project Status: Active - The project has reached a stable, usable
+state and is being actively
+developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 <!-- badges: end -->
 
 **rpspanel** gives researchers a documented, reproducible US
@@ -28,11 +33,58 @@ Portfolio Standard (RPS) stringency measures, in a few lines of R.
 - **Fits existing tools.** `as_pdata()` hands the panel to `plm`,
   `fixest` or `csdm`; `export_panel()` writes CSV, Stata or Parquet.
 
+Documentation: <https://adebayomoses.github.io/rpspanel/>
+
+## Why rpspanel?
+
+Studies of how US state energy policy affects growth and emissions
+usually rebuild the same state-by-year dataset by hand. Energy use and
+prices come from the EIA, GDP and population from the BEA, emissions
+from the EIA’s state CO2 data and renewable policy rules from DSIRE or
+Berkeley Lab. Each source has its own format, units, state codes and
+release schedule, and the cleaning code is rarely published. Renewable
+Portfolio Standards are also often reduced to a yes/no dummy, although
+real policies differ in targets, timelines, coverage and flexibility.
+
+rpspanel addresses both problems: one function returns the merged panel
+with a codebook and the vintage of every source, and `rps_stringency()`
+turns hand-coded, source-cited rules for all 50 states and DC into
+standardised annual stringency measures.
+
+### Related software
+
+Several R packages give access to one of the underlying APIs:
+[eia](https://CRAN.R-project.org/package=eia) and
+[EIAapi](https://CRAN.R-project.org/package=EIAapi) for EIA data,
+[bea.R](https://CRAN.R-project.org/package=bea.R) for BEA data, and
+[tidycensus](https://CRAN.R-project.org/package=tidycensus) and
+[censusapi](https://CRAN.R-project.org/package=censusapi) for Census
+data. They return each source in its own format. rpspanel differs in
+that it harmonises these sources into a single documented state-year
+panel and adds RPS stringency measures, which none of them provide. In
+Python, the [PUDL](https://catalyst.coop/pudl/) project publishes
+machine-readable RPS and clean energy standard data; rpspanel brings
+comparable policy measures to R together with the economic and energy
+variables needed for panel analysis, and hands the result to
+[plm](https://CRAN.R-project.org/package=plm),
+[fixest](https://CRAN.R-project.org/package=fixest) and
+[csdm](https://CRAN.R-project.org/package=csdm) rather than
+re-implementing estimators.
+
 ## Installation
 
+Install the released version from CRAN:
+
 ``` r
-# install.packages("remotes")
-remotes::install_github("adebayomoses/rpspanel")
+install.packages("rpspanel")
+```
+
+or the development version from
+[r-universe](https://adebayomoses.r-universe.dev/rpspanel):
+
+``` r
+install.packages("rpspanel",
+  repos = c("https://adebayomoses.r-universe.dev", "https://cloud.r-project.org"))
 ```
 
 ## API keys
@@ -46,7 +98,7 @@ and <https://apps.bea.gov/API/signup/>, then add them to `.Renviron`:
 ## Live example
 
 Everything below is real output, produced by knitting this README
-against the live EIA and BEA APIs (15 October 2026).
+against the live EIA and BEA APIs (28 October 2026).
 
 ### One call builds the whole panel
 
@@ -62,7 +114,7 @@ panel <- build_panel(years = 2001:2022)
 #> Fetching bea_regional (6 series)
 #> Fetching bea_nipa (1 series)
 Sys.time() - t0
-#> Time difference of 1.75906 mins
+#> Time difference of 14.11745 secs
 
 dim(panel)
 #> [1] 1122   56
@@ -114,13 +166,13 @@ every time until you pass `refresh = TRUE`.
 ``` r
 attr(panel, "sources")[c("source", "retrieved")]
 #>             source           retrieved
-#> 1         eia_seds 2026-10-15 13:36:55
-#> 2   eia_generation 2026-10-15 13:37:23
-#> 3 eia_retail_sales 2026-10-15 13:37:24
-#> 4          eia_co2 2026-10-15 13:37:32
-#> 5     bea_regional 2026-10-15 13:37:34
-#> 6         bea_nipa 2026-10-15 13:37:40
-#> 7      rps_bundled               0.1.0
+#> 1         eia_seds 2026-10-28 08:25:27
+#> 2   eia_generation 2026-10-28 08:25:28
+#> 3 eia_retail_sales 2026-10-28 08:25:28
+#> 4          eia_co2 2026-10-28 08:25:29
+#> 5     bea_regional 2026-10-28 08:25:31
+#> 6         bea_nipa 2026-10-28 08:25:37
+#> 7      rps_bundled          0.1.0.9000
 
 head(codebook(panel), 8)
 #>            variable  group                                          label
@@ -145,21 +197,21 @@ head(codebook(panel), 8)
 
 ``` r
 cite_sources(panel)
-#> U.S. Energy Information Administration (2026). State Energy Data System (SEDS). https://www.eia.gov/state/seds/. Retrieved 2026-10-15 13:36:55 UTC.
+#> U.S. Energy Information Administration (2026). State Energy Data System (SEDS). <https://www.eia.gov/state/seds/>. Retrieved 2026-10-28 08:25:27 UTC.
 #> 
-#> U.S. Energy Information Administration (2026). Electric Power Operational Data (Forms EIA-923, EIA-906, EIA-920). https://www.eia.gov/electricity/data/state/. Retrieved 2026-10-15 13:37:23 UTC.
+#> U.S. Energy Information Administration (2026). Electric Power Operational Data (Forms EIA-923, EIA-906, EIA-920). <https://www.eia.gov/electricity/data/state/>. Retrieved 2026-10-28 08:25:28 UTC.
 #> 
-#> U.S. Energy Information Administration (2026). Electricity Retail Sales (Form EIA-861). https://www.eia.gov/electricity/data/state/. Retrieved 2026-10-15 13:37:24 UTC.
+#> U.S. Energy Information Administration (2026). Electricity Retail Sales (Form EIA-861). <https://www.eia.gov/electricity/data/state/>. Retrieved 2026-10-28 08:25:28 UTC.
 #> 
-#> U.S. Energy Information Administration (2026). State Energy-Related Carbon Dioxide Emissions. https://www.eia.gov/environment/emissions/state/. Retrieved 2026-10-15 13:37:32 UTC.
+#> U.S. Energy Information Administration (2026). State Energy-Related Carbon Dioxide Emissions. <https://www.eia.gov/environment/emissions/state/>. Retrieved 2026-10-28 08:25:29 UTC.
 #> 
-#> U.S. Bureau of Economic Analysis (2026). Regional Economic Accounts (SAGDP, SAINC tables). https://apps.bea.gov/regional/. Retrieved 2026-10-15 13:37:34 UTC.
+#> U.S. Bureau of Economic Analysis (2026). Regional Economic Accounts (SAGDP, SAINC tables). <https://apps.bea.gov/regional/>. Retrieved 2026-10-28 08:25:31 UTC.
 #> 
-#> U.S. Bureau of Economic Analysis (2026). National Income and Product Accounts, Table 1.1.9. https://apps.bea.gov/iTable/?reqid=19. Retrieved 2026-10-15 13:37:40 UTC.
+#> U.S. Bureau of Economic Analysis (2026). National Income and Product Accounts, Table 1.1.9. <https://apps.bea.gov/iTable/?reqid=19>. Retrieved 2026-10-28 08:25:37 UTC.
 #> 
-#> rpspanel authors (2026). rpspanel RPS rule coding (bundled). https://github.com/adebayomoses/rpspanel. Coding shipped with rpspanel 0.1.0.
+#> rpspanel authors (2026). rpspanel RPS rule coding (bundled). <https://github.com/adebayomoses/rpspanel>. Coding shipped with rpspanel 0.1.0.9000.
 #> 
-#> Adebayo, M. (2026). rpspanel: US state energy-economy panels with renewable portfolio standards. R package version 0.1.0.
+#> Adebayo, M. (2026). rpspanel: US state energy-economy panels with renewable portfolio standards. R package version 0.1.0.9000.
 ```
 
 ### A first look at the data
@@ -337,5 +389,22 @@ issues.
 US Energy Information Administration (SEDS, electricity, CO2 emissions),
 US Bureau of Economic Analysis (Regional and NIPA accounts) and US
 Census Bureau (ACS). The package downloads data on demand and does not
-redistribute it. Related work: the [PUDL](https://catalyst.coop/pudl/)
-project’s machine-readable RPS and Clean Energy Standard data.
+redistribute it.
+
+## Citation
+
+To cite rpspanel in publications, use `citation("rpspanel")`, or cite
+the Zenodo record, which always points to the latest version:
+<https://doi.org/10.5281/zenodo.23480612>.
+
+## Contributing
+
+Bug reports, corrections to the RPS coding and other contributions are
+welcome; see the [contributing guide](.github/CONTRIBUTING.md).
+
+## Code of Conduct
+
+Please note that the rpspanel project is released with a [Contributor
+Code of
+Conduct](https://contributor-covenant.org/version/2/1/CODE_OF_CONDUCT.html).
+By contributing to this project, you agree to abide by its terms.

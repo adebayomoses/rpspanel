@@ -49,7 +49,8 @@ as_pdata <- function(x, to = c("plm", "fixest", "csdm", "data.frame")) {
 
 rlang_check <- function(pkg) {
   if (!requireNamespace(pkg, quietly = TRUE)) {
-    cli::cli_abort("Package {.pkg {pkg}} is required; install it with {.code install.packages(\"{pkg}\")}.")
+    cli::cli_abort(paste0("Package {.pkg {pkg}} is required; install it ",
+                          "with {.code install.packages(\"{pkg}\")}."))
   }
 }
 
@@ -76,7 +77,9 @@ rlang_check <- function(pkg) {
 export_panel <- function(x, path, format = NULL, codebook = TRUE) {
   format <- format %||% switch(tolower(tools::file_ext(path)),
     csv = "csv", dta = "stata", parquet = "parquet",
-    cli::cli_abort("Cannot guess the format of {.path {path}}; set {.arg format}.")
+    cli::cli_abort(
+      "Cannot guess the format of {.path {path}}; set {.arg format}."
+    )
   )
   format <- match.arg(format, c("csv", "stata", "parquet"))
   cb <- codebook(x)
@@ -98,7 +101,8 @@ export_panel <- function(x, path, format = NULL, codebook = TRUE) {
   )
   if (codebook) {
     cb_path <- file.path(dirname(path),
-                         paste0(tools::file_path_sans_ext(basename(path)), "_codebook.csv"))
+                         paste0(tools::file_path_sans_ext(basename(path)),
+                                "_codebook.csv"))
     utils::write.csv(cb, cb_path, row.names = FALSE)
   }
   invisible(path)

@@ -8,8 +8,8 @@ rps_only <- function() {
 test_that("as_pdata converts for estimation packages", {
   p <- rps_only()
   df <- as_pdata(p, "data.frame")
-  expect_identical(class(df), "data.frame")
-  expect_true(is.factor(as_pdata(p, "csdm")$state))
+  expect_s3_class(df, "data.frame", exact = TRUE)
+  expect_s3_class(as_pdata(p, "csdm")$state, "factor")
   skip_if_not_installed("plm")
   expect_s3_class(as_pdata(p, "plm"), "pdata.frame")
   skip_if_not_installed("fixest")

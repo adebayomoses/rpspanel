@@ -15,7 +15,7 @@ toy_rules <- function(coverage = 0.8, baseline = 0.05) {
   targets <- data.frame(state = c("CA", "CA", "TX", "TX"),
                         year = c(2007, 2015, 2010, 2012),
                         target = c(0.04, 0.20, 0.05, 0.10))
-  rpspanel:::new_rps_rules(rules, targets)
+  new_rps_rules(rules, targets)
 }
 
 # Fake API responses keyed on the request URL.
@@ -66,14 +66,18 @@ fake_bea_body <- function(url) {
     line <- sub(".*LineCode=([0-9]+).*", "\\1", url)
     table <- sub(".*TableName=([A-Z0-9]+).*", "\\1", url)
     val <- switch(paste0(table, ":", line),
-      "SAGDP9:1" = c("2,800,000", "2,700,000", "1,800,000", "1,750,000", "(NA)"),
-      "SAINC1:2" = c("39,500,000", "39,400,000", "29,000,000", "29,200,000", "330000000"),
+      "SAGDP9:1" = c("2,800,000", "2,700,000", "1,800,000", "1,750,000",
+                     "(NA)"),
+      "SAINC1:2" = c("39,500,000", "39,400,000", "29,000,000", "29,200,000",
+                     "330000000"),
       rep("1", 5))
     data <- data.frame(Code = paste0(table, "-", line),
                        GeoFips = c("06000", "06000", "48000", "48000", "00000"),
-                       GeoName = c("California", "California", "Texas", "Texas", "United States"),
+                       GeoName = c("California", "California", "Texas",
+                                   "Texas", "United States"),
                        TimePeriod = c("2019", "2020", "2019", "2020", "2020"),
-                       CL_UNIT = "Millions of chained 2017 dollars", UNIT_MULT = "6",
+                       CL_UNIT = "Millions of chained 2017 dollars",
+                       UNIT_MULT = "6",
                        DataValue = val)
   }
   list(BEAAPI = list(Results = list(Data = data)))
