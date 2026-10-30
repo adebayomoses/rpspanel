@@ -16,6 +16,15 @@
   text citations now wrap URLs in angle brackets so the closing full
   stop is not read as part of the link, and sources without a URL no
   longer get a stray extra full stop.
+- Addressed the goodpractice findings raised in rOpenSci pre-submission
+  review: the internal `%||%` helper is now defined only on R \< 4.4
+  (newer R provides it in base), `%in%` comparisons with a single value
+  use `==`, the duplicated `cli` bullet name is merged, and functions
+  with high cyclomatic complexity (`check_stringency_inputs()`,
+  `eia_download()`, `validate_rps_rules()`) are split into smaller
+  helpers. Results are unchanged.
+- Tests use `expect_identical()` wherever an exact match is expected,
+  and no longer assign inside `expect_warning()`.
 - Tests no longer use `:::`, and the test for rules files without the
   optional `baseline_includes_hydro` column now checks that such files
   load with the default value.

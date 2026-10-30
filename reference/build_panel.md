@@ -120,7 +120,7 @@ head(p)
 #> 5       0
 #> 6       0
 
-if (FALSE) { # nzchar(Sys.getenv("EIA_API_KEY")) && nzchar(Sys.getenv("BEA_API_KEY"))
+if (FALSE) { # all(nzchar(Sys.getenv(c("EIA_API_KEY", "BEA_API_KEY"))))
 p <- build_panel(years = 2005:2022)
 codebook(p)
 }

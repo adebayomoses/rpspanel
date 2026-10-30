@@ -45,6 +45,8 @@
 <li>Internal refactoring for readability: <code><a href="../reference/build_panel.html">build_panel()</a></code> and <code><a href="../reference/rps_stringency.html">rps_stringency()</a></code> are split into smaller helper functions, and code lines are kept within 80 characters. Results are unchanged (checked against version 0.1.0 on every state and year, and on the full live panel).</li>
 <li>
 <code><a href="../reference/cite_sources.html">cite_sources()</a></code> text citations now wrap URLs in angle brackets so the closing full stop is not read as part of the link, and sources without a URL no longer get a stray extra full stop.</li>
+<li>Addressed the goodpractice findings raised in rOpenSci pre-submission review: the internal <code>%||%</code> helper is now defined only on R &lt; 4.4 (newer R provides it in base), <code>%in%</code> comparisons with a single value use <code>==</code>, the duplicated <code>cli</code> bullet name is merged, and functions with high cyclomatic complexity (<code>check_stringency_inputs()</code>, <code>eia_download()</code>, <code>validate_rps_rules()</code>) are split into smaller helpers. Results are unchanged.</li>
+<li>Tests use <code>expect_identical()</code> wherever an exact match is expected, and no longer assign inside <code>expect_warning()</code>.</li>
 <li>Tests no longer use <code>:::</code>, and the test for rules files without the optional <code>baseline_includes_hydro</code> column now checks that such files load with the default value.</li>
 </ul></div>
     <div class="section level2">
