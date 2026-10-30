@@ -102,7 +102,7 @@ rps_stringency <- function(years, states = NULL,
                       stringsAsFactors = FALSE)[c("state", "year")]
   rule <- r[match(grid$state, r$state), , drop = FALSE]
   coded <- !is.na(rule$state)
-  has <- coded & rule$has_rps %in% 1L
+  has <- coded & !is.na(rule$has_rps) & rule$has_rps == 1L
 
   start <- if (adopt_from == "enactment") {
     rule$enacted_year
@@ -136,21 +136,27 @@ check_stringency_inputs <- function(rules, capacity_factor, sales, baseline) {
     cli::cli_abort(paste0("{.arg rules} must be an {.cls rps_rules} ",
                           "object; see {.fn rps_rules}."))
   }
-  if (!is.numeric(capacity_factor) || length(capacity_factor) != 1 ||
-      capacity_factor <= 0 || capacity_factor > 1) {
+  check_capacity_factor(capacity_factor)
+  check_columns(sales, c("state", "year", "sales_gwh"), "sales")
+  check_columns(baseline, c("state", "baseline_share"), "baseline")
+  invisible(TRUE)
+}
+
+check_capacity_factor <- function(capacity_factor) {
+  ok <- is.numeric(capacity_factor) && length(capacity_factor) == 1 &&
+    !is.na(capacity_factor) && capacity_factor > 0 && capacity_factor <= 1
+  if (!ok) {
     cli::cli_abort(
       "{.arg capacity_factor} must be a single number between 0 and 1."
     )
   }
-  if (!is.null(sales) &&
-      !all(c("state", "year", "sales_gwh") %in% names(sales))) {
-    cli::cli_abort(paste0("{.arg sales} needs columns {.field state}, ",
-                          "{.field year} and {.field sales_gwh}."))
-  }
-  if (!is.null(baseline) &&
-      !all(c("state", "baseline_share") %in% names(baseline))) {
-    cli::cli_abort(paste0("{.arg baseline} needs columns {.field state} ",
-                          "and {.field baseline_share}."))
+  invisible(TRUE)
+}
+
+# An optional data frame argument must have the named columns.
+check_columns <- function(df, cols, arg) {
+  if (!is.null(df) && !all(cols %in% names(df))) {
+    cli::cli_abort("{.arg {arg}} needs columns {.field {cols}}.")
   }
   invisible(TRUE)
 }

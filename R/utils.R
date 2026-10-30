@@ -1,4 +1,7 @@
-`%||%` <- function(x, y) if (is.null(x)) y else x
+# R >= 4.4 has `%||%` in base; define it only for older versions of R.
+if (!exists("%||%", envir = baseenv())) {
+  `%||%` <- function(x, y) if (is.null(x)) y else x
+}
 
 # Parse numbers that may contain thousands separators or BEA/EIA footnote
 # markers such as "(NA)", "(D)" or "--". Anything non-numeric becomes NA.

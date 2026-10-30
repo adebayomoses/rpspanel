@@ -16,17 +16,17 @@ test_that("fetch_eia tidies responses", {
   x <- fetch_eia("seds", "TETCB", states = c("CA", "TX"), years = 2019:2020,
                  cache = FALSE)
   expect_named(x, c("state", "year", "series", "value", "unit"))
-  expect_equal(nrow(x), 4)
-  expect_equal(x$value[x$state == "CA" & x$year == 2019], 7800000)
+  expect_identical(nrow(x), 4L)
+  expect_identical(x$value[x$state == "CA" & x$year == 2019], 7800000)
   expect_false(is.null(attr(x, "rps_retrieved")))
 
   r <- fetch_eia("retail_sales", c("sales", "price"), states = "CA",
                  cache = FALSE)
   expect_setequal(unique(r$series), c("sales", "price"))
-  expect_equal(r$unit[r$series == "price"][1], "cents per kilowatt-hour")
+  expect_identical(r$unit[r$series == "price"][1], "cents per kilowatt-hour")
 
   co2 <- fetch_eia("co2", "TT", states = "TX", cache = FALSE)
-  expect_equal(co2$unit[1], "million metric tons of CO2")
+  expect_identical(co2$unit[1], "million metric tons of CO2")
 })
 
 test_that("fetch_eia uses the cache and never stores the key", {
@@ -40,7 +40,7 @@ test_that("fetch_eia uses the cache and never stores the key", {
   fetch_eia("seds", "TETCB", states = "CA", years = 2019:2020)
   fetch_eia("seds", "TETCB", states = "CA", years = 2019:2020)
   expect_identical(counter$calls, 1)
-  expect_equal(nrow(rps_cache_list()), 1)
+  expect_identical(nrow(rps_cache_list()), 1L)
   cached <- readRDS(list.files(rps_cache_dir(), full.names = TRUE)[1])
   expect_false(any(grepl("test-eia-key", unlist(attributes(cached)),
                          fixed = TRUE)))
@@ -64,10 +64,10 @@ test_that("missing keys and network failures give classed errors", {
 test_that("fetch_bea parses numbers, footnotes and NIPA lines", {
   local_mocked_bindings(perform_json = fake_perform)
   g <- fetch_bea("SAGDP9", 1, states = c("CA", "TX"), cache = FALSE)
-  expect_equal(nrow(g), 4) # US row dropped
+  expect_identical(nrow(g), 4L) # US row dropped
   expect_equal(g$value[g$state == "CA" & g$year == 2019], 2.8e6)
   d <- fetch_bea("T10109", 1, dataset = "NIPA", cache = FALSE)
-  expect_equal(d$value, c(100, 103, 104))
+  expect_identical(d$value, c(100, 103, 104))
   expect_true(all(is.na(d$state)))
 })
 
@@ -82,8 +82,8 @@ test_that("census responses are parsed", {
                 c("California", "39538223", "06"),
                 c("Puerto Rico", "3285874", "72"))
   out <- census_tidy(body, 2019, "B01003_001E")
-  expect_equal(out$state, c("CA", NA))
-  expect_equal(out$value[1], 39538223)
+  expect_identical(out$state, c("CA", NA))
+  expect_identical(out$value[1], 39538223)
 })
 
 test_that("fetch_census needs a key", {
@@ -115,9 +115,9 @@ test_that("cached data can be read without an API key", {
   first <- fetch_eia("seds", "TETCB", states = "CA", years = 2019:2020)
   g1 <- fetch_bea("SAGDP9", 1, states = "CA")
   withr::local_envvar(EIA_API_KEY = "", BEA_API_KEY = "")
-  expect_equal(fetch_eia("seds", "TETCB", states = "CA", years = 2019:2020),
+  expect_identical(fetch_eia("seds", "TETCB", states = "CA", years = 2019:2020),
                first)
-  expect_equal(fetch_bea("SAGDP9", 1, states = "CA"), g1)
+  expect_identical(fetch_bea("SAGDP9", 1, states = "CA"), g1)
   # a new download still asks for the key
   expect_error(fetch_eia("seds", "TETCD", states = "CA"),
                class = "rpspanel_no_key")

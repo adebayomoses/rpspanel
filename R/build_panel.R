@@ -40,7 +40,7 @@ panel_groups <- c("energy", "electricity", "emissions", "economy", "rps")
 #'                  rps_methods = c("adoption", "nominal", "flexibility"))
 #' head(p)
 #'
-#' @examplesIf nzchar(Sys.getenv("EIA_API_KEY")) && nzchar(Sys.getenv("BEA_API_KEY"))
+#' @examplesIf all(nzchar(Sys.getenv(c("EIA_API_KEY", "BEA_API_KEY"))))
 #' p <- build_panel(years = 2005:2022)
 #' codebook(p)
 build_panel <- function(states = NULL, years = 2001:2022, vars = NULL,
@@ -321,10 +321,10 @@ add_real_prices <- function(panel, needed, price_base_year, deflator_series) {
 # year with data. It includes hydro for states whose targets count existing
 # hydro (`baseline_includes_hydro = 1`) and excludes it otherwise.
 baseline_from_panel <- function(panel, rules) {
-  r <- rules$rules[rules$rules$has_rps %in% 1L, ]
+  r <- rules$rules[which(rules$rules$has_rps == 1L), ]
   b <- vapply(seq_len(nrow(r)), function(i) {
     # Measure the baseline the way the target is defined
-    use_total <- r$baseline_includes_hydro[i] %in% 1L &&
+    use_total <- isTRUE(r$baseline_includes_hydro[i] == 1L) &&
       "re_share_total" %in% names(panel)
     col <- if (use_total) {
       "re_share_total"

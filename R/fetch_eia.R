@@ -117,16 +117,13 @@ eia_request <- function(spec, series, states, years, api_key, offset = 0) {
   build_request(sprintf("%s/%s/data/", eia_base_url, spec$route), q)
 }
 
+# Download every page of an EIA query (the API returns at most 5000 rows per
+# request) and bind them into one data frame.
 eia_download <- function(spec, series, states, years, api_key) {
   pages <- list()
   offset <- 0
   repeat {
-    req <- eia_request(spec, series, states, years, api_key, offset)
-    body <- perform_json(req, paste0("EIA ", spec$route, " data"))
-    if (!is.null(body$error)) {
-      cli::cli_abort(c("EIA API returned an error.", x = "{body$error}"),
-                     class = "rpspanel_http_error")
-    }
+    body <- eia_page(spec, series, states, years, api_key, offset)
     page <- body$response$data
     if (is.null(page) || length(page) == 0 || NROW(page) == 0) {
       break
@@ -138,6 +135,22 @@ eia_download <- function(spec, series, states, years, api_key) {
       break
     }
   }
+  bind_pages(pages)
+}
+
+# One page of an EIA query; API errors become classed R errors.
+eia_page <- function(spec, series, states, years, api_key, offset) {
+  req <- eia_request(spec, series, states, years, api_key, offset)
+  body <- perform_json(req, paste0("EIA ", spec$route, " data"))
+  if (!is.null(body$error)) {
+    cli::cli_abort(c("EIA API returned an error.", x = "{body$error}"),
+                   class = "rpspanel_http_error")
+  }
+  body
+}
+
+# Row-bind pages that may not all have the same columns.
+bind_pages <- function(pages) {
   if (length(pages) == 0) {
     return(data.frame())
   }

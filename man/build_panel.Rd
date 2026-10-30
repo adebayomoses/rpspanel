@@ -73,7 +73,7 @@ p <- build_panel(states = c("CA", "TX", "NY"), years = 2000:2025,
                  rps_methods = c("adoption", "nominal", "flexibility"))
 head(p)
 
-\dontshow{if (nzchar(Sys.getenv("EIA_API_KEY")) && nzchar(Sys.getenv("BEA_API_KEY"))) withAutoprint(\{ # examplesIf}
+\dontshow{if (all(nzchar(Sys.getenv(c("EIA_API_KEY", "BEA_API_KEY"))))) withAutoprint(\{ # examplesIf}
 p <- build_panel(years = 2005:2022)
 codebook(p)
 \dontshow{\}) # examplesIf}

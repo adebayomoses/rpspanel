@@ -58,9 +58,9 @@ get_api_key <- function(key, env, service, signup) {
   if (!nzchar(key)) {
     cli::cli_abort(
       c("No {service} API key found.",
-        i = "Register for a free key at {.url {signup}}.",
-        i = paste0("Then add {.code {env}=<your key>} to your ",
-                   "{.file .Renviron} file.")),
+        i = paste0("Register for a free key at {.url {signup}}, then add ",
+                   "{.code {env}=<your key>} to your {.file .Renviron} ",
+                   "file.")),
       class = "rpspanel_no_key"
     )
   }

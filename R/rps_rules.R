@@ -107,7 +107,17 @@ new_rps_rules <- function(rules, targets) {
 }
 
 validate_rps_rules <- function(x) {
-  r <- x$rules
+  act <- x$rules[which(x$rules$has_rps == 1L), , drop = FALSE]
+  problems <- c(rule_problems(x$rules, act), target_problems(x$targets, act))
+  if (length(problems)) {
+    bullets <- stats::setNames(problems, rep("x", length(problems)))
+    cli::cli_abort(c("Invalid RPS rule coding:", bullets))
+  }
+  invisible(TRUE)
+}
+
+# Problems in the rules table; `act` holds the rows of states with an RPS.
+rule_problems <- function(r, act) {
   problems <- character()
   if (anyDuplicated(r$state)) {
     problems <- c(problems, "duplicated states in rules")
@@ -115,7 +125,6 @@ validate_rps_rules <- function(x) {
   if (anyNA(r$has_rps) || !all(r$has_rps %in% c(0L, 1L))) {
     problems <- c(problems, "`has_rps` must be 0 or 1")
   }
-  act <- r[r$has_rps %in% 1L, , drop = FALSE]
   if (anyNA(act$enacted_year) || anyNA(act$first_compliance_year)) {
     problems <- c(problems,
                   "RPS states need `enacted_year` and `first_compliance_year`")
@@ -130,8 +139,13 @@ validate_rps_rules <- function(x) {
   if (any(act$coverage_share < 0 | act$coverage_share > 1, na.rm = TRUE)) {
     problems <- c(problems, "`coverage_share` must be between 0 and 1")
   }
+  problems
+}
+
+# Problems in the targets table, given the rules of the states with an RPS.
+target_problems <- function(t, act) {
+  problems <- character()
   share_states <- act$state[act$target_type == "share"]
-  t <- x$targets
   st <- t[t$state %in% share_states, , drop = FALSE]
   if (any(st$target < 0 | st$target > 1, na.rm = TRUE)) {
     problems <- c(problems, "share targets must be between 0 and 1")
@@ -149,11 +163,7 @@ validate_rps_rules <- function(x) {
     problems <- c(problems, paste("RPS states without targets:",
                                   toString(no_targets)))
   }
-  if (length(problems)) {
-    bullets <- stats::setNames(problems, rep("x", length(problems)))
-    cli::cli_abort(c("Invalid RPS rule coding:", bullets))
-  }
-  invisible(TRUE)
+  problems
 }
 
 #' @export

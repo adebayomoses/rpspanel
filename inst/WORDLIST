@@ -26,12 +26,14 @@ Zenodo
 bea
 censusapi
 csdm
+cyclomatic
 deflator
 deflators
 doi
 eia
 enpol
 fixest
+goodpractice
 pkgdown
 plm
 rOpenSci

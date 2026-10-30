@@ -21,14 +21,14 @@ test_that("export_panel writes data and codebook", {
   dir <- withr::local_tempdir()
   f <- file.path(dir, "panel.csv")
   export_panel(p, f)
-  expect_equal(nrow(utils::read.csv(f)), 6)
+  expect_identical(nrow(utils::read.csv(f)), 6L)
   expect_true(file.exists(file.path(dir, "panel_codebook.csv")))
   expect_error(export_panel(p, file.path(dir, "panel.xyz")), "Cannot guess")
   skip_if_not_installed("haven")
   fd <- file.path(dir, "panel.dta")
   export_panel(p, fd, codebook = FALSE)
   d <- haven::read_dta(fd)
-  expect_equal(attr(d$rps_nominal, "label"), "Nominal RPS requirement")
+  expect_identical(attr(d$rps_nominal, "label"), "Nominal RPS requirement")
 })
 
 test_that("export_panel writes Parquet that reads back unchanged", {

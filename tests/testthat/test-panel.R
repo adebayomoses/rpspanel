@@ -6,25 +6,25 @@ test_that("build_panel merges sources, derives variables and adds RPS", {
   p <- build_panel(states = c("CA", "TX"), years = 2019:2020, vars = vars,
                    cache = FALSE, quiet = TRUE)
   expect_s3_class(p, "rps_panel")
-  expect_equal(nrow(p), 4)
+  expect_identical(nrow(p), 4L)
   expect_named(p, c("state", "state_name", "fips", "year", vars))
 
   ca19 <- p[p$state == "CA" & p$year == 2019, ]
-  expect_equal(ca19$energy_cons_total, 7800000)
+  expect_identical(ca19$energy_cons_total, 7800000)
   # wind + solar (geothermal/wood/biomass missing -> 0) over total
-  expect_equal(ca19$re_share_nonhydro, (14000 + 28000) / 200000)
-  expect_equal(ca19$co2_pc, 358 * 1e6 / 39500000)
+  expect_identical(ca19$re_share_nonhydro, (14000 + 28000) / 200000)
+  expect_identical(ca19$co2_pc, 358 * 1e6 / 39500000)
   # price deflated to 2017 dollars with 2019 deflator 103
-  expect_equal(ca19$elec_price_real, 16.6 * 100 / 103)
+  expect_identical(ca19$elec_price_real, 16.6 * 100 / 103)
   # baseline for CA (enacted 2002) is the first year with data, 2019
   ca_cov <- rps_rules("CA")$rules$coverage_share
-  expect_equal(ca19$rps_incremental,
+  expect_identical(ca19$rps_incremental,
                ca19$rps_nominal * ca_cov - ca19$re_share_nonhydro)
 
   src <- attr(p, "sources")
   expect_true(all(c("eia_seds", "eia_generation", "eia_co2", "bea_regional",
                     "bea_nipa", "rps_bundled") %in% src$source))
-  expect_equal(codebook(p)$variable, vars)
+  expect_identical(codebook(p)$variable, vars)
   expect_output(print(p), "rps_panel")
   expect_output(print(cite_sources(p)), "Energy Information Administration")
   expect_s3_class(cite_sources(p), "rps_citation")
@@ -37,12 +37,13 @@ test_that("build_panel keeps going when a source fails", {
     }
     fake_perform(req, what)
   })
-  expect_warning(
-    p <- build_panel(states = "CA", years = 2019:2020,
-                     vars = c("energy_cons_total", "gdp_real"),
-                     cache = FALSE, quiet = TRUE),
-    "Skipping"
-  )
+  build <- function() {
+    build_panel(states = "CA", years = 2019:2020,
+                vars = c("energy_cons_total", "gdp_real"),
+                cache = FALSE, quiet = TRUE)
+  }
+  expect_warning(build(), "Skipping")
+  p <- suppressWarnings(build())
   expect_true("energy_cons_total" %in% names(p))
   expect_false("gdp_real" %in% names(p))
 })
@@ -52,7 +53,7 @@ test_that("RPS-only panels need no API keys", {
   p <- build_panel(states = c("CA", "WA"), years = 2010:2012, groups = "rps",
                    rps_methods = c("adoption", "nominal", "flexibility"),
                    quiet = TRUE)
-  expect_equal(nrow(p), 6)
+  expect_identical(nrow(p), 6L)
   expect_true(all(c("rps_adoption", "rps_nominal", "rps_oos_rec") %in%
                     names(p)))
   expect_false("rps_incremental" %in% names(p))
@@ -66,7 +67,7 @@ test_that("codebook documents every variable", {
   cb <- codebook()
   expect_false(anyDuplicated(cb$variable) > 0)
   expect_false(any(is.na(cb$label) | is.na(cb$unit) | is.na(cb$source)))
-  expect_equal(unique(codebook(group = "rps")$group), "rps")
+  expect_identical(unique(codebook(group = "rps")$group), "rps")
 })
 
 test_that("text citations keep punctuation out of URLs", {
@@ -94,10 +95,10 @@ test_that("build_panel converts MW targets and uses hydro baselines", {
   tx_mw <- stats::approx(tx_targets$year, tx_targets$target, xout = 2019,
                          rule = 2)$y
   tx_cov <- rules$rules$coverage_share[rules$rules$state == "TX"]
-  expect_equal(tx19$rps_nominal, tx_mw * 0.33 * 8.76 / (430000 * tx_cov))
+  expect_identical(tx19$rps_nominal, tx_mw * 0.33 * 8.76 / (430000 * tx_cov))
   # TX baseline excludes hydro: (wind + solar) / total in the first data year
-  expect_equal(tx19$rps_baseline_share, (84000 + 5000) / 480000)
+  expect_identical(tx19$rps_baseline_share, (84000 + 5000) / 480000)
   # CA flagged to include hydro
   ca19 <- p[p$state == "CA" & p$year == 2019, ]
-  expect_equal(ca19$rps_baseline_share, (14000 + 28000 + 34000) / 200000)
+  expect_identical(ca19$rps_baseline_share, (14000 + 28000 + 34000) / 200000)
 })
