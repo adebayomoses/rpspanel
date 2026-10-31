@@ -7,3 +7,4 @@ inst/doc
 *.tar.gz
 rpspanel.Rcheck/
 rOpenSci-presubmission.md
+rOpenSci-submission.md
